@@ -17,7 +17,7 @@ from django.contrib import admin
 from django.urls import include, path
 
 urlpatterns = [
-    path('Valet/', include('Valet.urls')),
-    path('Valet/poopy', include('Valet.urls')),
-    path('admin/', admin.site.urls),
+    # path('ValetApp/', include('ValetApp.urls')),
+    # path('ValetApp/poopy', include('ValetApp.urls')),
+    # path('admin/', admin.site.urls),
 ]
