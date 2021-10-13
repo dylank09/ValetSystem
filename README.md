@@ -1,4 +1,4 @@
-# MyApp Does Amazing Things!
+# Valet Stores
 
 ## Installation
 
@@ -59,7 +59,7 @@ $ make dist-upload
 
 ### Docker
 
-Included is a basic `Dockerfile` for building and distributing `ValetSystem`,
+Included is a basic `Dockerfile` for building and distributing `Valet System`,
 and can be built with the included `make` helper:
 
 ```
