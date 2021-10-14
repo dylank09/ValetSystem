@@ -1,12 +1,12 @@
 from controllers.BaseController import BaseController
+from controllers.UserController import UserController
 
 
-class CustomerController(BaseController):
+class CustomerController(UserController):
 
     def __init__(self, model, view):
-        self.model = model
-        self.view = view
+        super().__init__(model, view)
 
-    def showName(self):
-        name = self.model.showName()
-        self.view.showName(name)
+    def getMembershipType(self):
+        name = self.model.getMembershipType()
+        self.view.showMembershipType(str(name))
