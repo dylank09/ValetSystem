@@ -1,11 +1,17 @@
 import csv  
+from random import seed
+from random import random
 
-#name, GPSLocation, storeManager, rating, status, valets
-data = ['name', 'GPSLocation', 'rating', 'status', 'valets']
-with open('stores.csv', 'w', encoding='UTF8') as f:
+with open('stores.csv', 'w', newline='') as f:
+
     writer = csv.writer(f)
 
-    # write the data
-    writer.writerow(data)
+    seed(1)
+
+    for i in range(100):
+        #name, GPSLocation, storeManager, rating, status, valets
+        data = ['Store'+str(i), str(i*4)+','+str(i*9), str(random()*5), 'status', 'valets']
+        # write the data
+        writer.writerow(data)
 
     f.close()
