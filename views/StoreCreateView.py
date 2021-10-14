@@ -1,4 +1,9 @@
-print("Good")
+class StoreCreateView(object):
+    def __init__(self):
+        print("")
+        # self.location = location
+        # self.GPSLocation = GPSLocation
+        # self.storeManager = storeManager
 
-name = input("Enter store name: ")
-print("Hello", name)
+    def showName(self, name):
+        print("This shop is called " + name)
