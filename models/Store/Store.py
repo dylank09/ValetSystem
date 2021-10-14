@@ -6,11 +6,10 @@ class Store(object):
     name, location, GPSLocation, storeManager
     """
 
-    def __init__(self, name):
+    def __init__(self, name, GPSLocation, storeManager, rating, status, valets):
         self.name = name
-        # self.location = location
-        # self.GPSLocation = GPSLocation
-        # self.storeManager = storeManager
+        self.GPSLocation = GPSLocation
+        self.storeManager = storeManager
 
     def setStoreName(self, name):
         self.name = name
