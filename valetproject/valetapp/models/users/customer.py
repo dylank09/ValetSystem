@@ -1,8 +1,10 @@
 from django.db import models
-from . import user
-from .membershipType import MembershipType
+from .user import User
 
 
-class Customer(user):
+class Customer(User):
     # membershipType = models.ForeignKey(MembershipType)
     colour = models.CharField(max_length=23)
+
+    class Meta:
+        app_label = "customer"
