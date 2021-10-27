@@ -35,6 +35,8 @@ def register(request, ):
         form = UserCreationForm()
     return render(request, 'register.html', {'form': form})
 
-
+def home(request, ):
+    return render(request, 'home.html')
+    
 
 
