@@ -17,7 +17,9 @@ def index(request):
 def chainstore_by_id(request, chainstore_id):
     chainStore = ChainStore.objects.get(pk=chainstore_id)
     return render(request, 'chainstore_details.html', {'chainStore': chainStore})
-    
+
+def bookingscreen(request, ):
+    return render(request, 'bookingscreen.html')   
 
 def register(request, ):
     if request.method == 'POST':
