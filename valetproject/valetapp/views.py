@@ -18,11 +18,11 @@ def chainstore_by_id(request, chainstore_id):
     return render(request, 'chainstore_details.html', {'chainStore': chainStore})
 
 
-def bookingscreen(request, ):
+def bookingscreen(request):
     return render(request, 'bookingscreen.html')
 
 
-def register(request, ):
+def register(request):
 
     form = SignUpForm(request.POST)
     if form.is_valid():
@@ -30,9 +30,5 @@ def register(request, ):
     return render(request, "register.html", {"form": form})
 
 
-def homescreen(request, ):
-    return render(request, "homescreen.html")
-
-
-def home(request, ):
+def home(request):
     return render(request, 'home.html')

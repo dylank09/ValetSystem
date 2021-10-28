@@ -2,7 +2,7 @@
 {% block title %}Create user{% endblock %}
 
 {% block content %}
-    <form action="../homescreen/" method="POST" class="form-group">
+    <form action="../home/" method="POST" class="form-group">
         {% csrf_token %}
         {{ form.as_p }}
         <button type="submit" class="btn btn-success">Register</button>
