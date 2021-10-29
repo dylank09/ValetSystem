@@ -1,7 +1,7 @@
 {% block title %}Login{% endblock %}
 
 {% block content %}
-    <form action="/login/" method="POST" class="form-group">
+    <form action="../login/" method="POST" class="form-group">
         {% csrf_token %}
         {{ form.as_p }}
         <button type="submit" class="btn btn-success">Login</button>

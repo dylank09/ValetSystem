@@ -4,6 +4,8 @@ from django.http import HttpResponse
 
 from .forms.signup import SignUpForm
 
+from .forms.login import LoginForm
+
 from .models import ChainStore
 
 from django.contrib.auth import login
@@ -32,3 +34,10 @@ def register(request):
 
 def home(request):
     return render(request, 'home.html')
+
+def login(request):
+
+    form = LoginForm(request.POST)
+    if form.is_valid():
+        form.save()
+    return render(request, "login.html", {"form": form})
