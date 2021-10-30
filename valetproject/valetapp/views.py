@@ -8,6 +8,8 @@ from django.contrib.auth.forms import UserCreationForm
 
 from .models import ChainStore
 
+import datetime
+
 
 
 def index(request):
@@ -37,6 +39,41 @@ def register(request, ):
 
 def home(request, ):
     return render(request, 'home.html')
+    
+def selecttime(request, ):
+
+        #context = super(selecttime, self).get_context_data(**kwargs)
+    start_time = '9:00'
+    end_time = '18:00'
+    slot_time = 60
+
+    arrayOfDays = ["monday","tuesday","wenesday","thursday","friday","Saturday"]
+    # Start date from today to next 5 day
+    start_date = datetime.datetime.now().date()
+    end_date = datetime.datetime.now().date() + datetime.timedelta(days=5)
+
+    days = []
+    date = start_date
+    while date <= end_date:
+        hours = []
+        time = datetime.datetime.strptime(start_time, '%H:%M')
+        end = datetime.datetime.strptime(end_time, '%H:%M')
+        while time <= end:
+            hours.append(time.strftime("%H:%M"))
+            time += datetime.timedelta(minutes=slot_time)
+        date += datetime.timedelta(days=1)
+        days.append(hours)
+
+    i = 0
+    for hours in days:
+        array = [arrayOfDays[i], "-", hours]
+        i = i + 1
+    
+    #context['days'] = days
+    
+    return render(request, 'selecttime.html', {'days': days})
+
+
     
 
 
