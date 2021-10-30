@@ -1,16 +1,16 @@
+from django.forms import ModelForm
 from django import forms
-from django.contrib.auth.forms import UserCreationForm
-from django.contrib.auth import get_user_model
+from django.forms.widgets import EmailInput, PasswordInput
+from ..models.users.customer import Customer
 
-User = get_user_model()
 
-class SignUpForm(UserCreationForm):
-    first_name = forms.CharField(max_length=28, required=False, help_text='First Name')
-    surname = forms.CharField(max_length=28, required=False, help_text='Surname')
-    email = forms.CharField(max_length=50, required=False, help_text='email')
-    password = forms.CharField(min_length=8, max_length=12, required=False, help_text='password')
-
+class SignUpForm(ModelForm):
+    firstname = forms.CharField(max_length=28, required=False)
+    surname = forms.CharField(max_length=28, required=False)
+    email = forms.CharField(max_length=50, required=False, widget=EmailInput)
+    password = forms.CharField(
+        min_length=8, max_length=12, required=False, widget=PasswordInput)
 
     class Meta:
-        model = User
-        fields = ('username', 'first_name', 'surname', 'email', 'password')
+        model = Customer
+        fields = ['firstname', 'surname', 'email', 'password']
