@@ -1,10 +1,17 @@
-{% block title %}Login{% endblock %}
-
-{% block content %}
-    <form action="../login/" method="POST" class="form-group">
-        {% csrf_token %}
-        {{ form.as_p }}
-        <button type="submit" class="btn btn-success">Login</button>
-    </form>
-
-{% endblock %}
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=100">
+        <meta http-equiv="X-UA-Compatible" content="ie=edge">
+        <title>Document</title>
+    </head>
+    <body>
+        <h1>Login</h1>
+        <form method="POST">
+            {% csrf_token %}
+            {{form}}
+            <input type="submit" />
+        </form>
+    </body>
+</html>

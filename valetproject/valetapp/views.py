@@ -1,14 +1,16 @@
 from django.shortcuts import render, redirect
-
 from django.http import HttpResponse
-
 from .forms.signup import SignUpForm
-
 from .forms.login import LoginForm
-
 from .models import ChainStore
+#from django.contrib.auth.decorators import login_required
+from django.contrib.auth import (
+    authenticate,
+    get_user_model,
+    login,
+    logout
+)
 
-from django.contrib.auth import login
 
 
 def index(request):
@@ -35,9 +37,21 @@ def register(request):
 def home(request):
     return render(request, 'home.html')
 
+#@login_required
 def login(request):
 
-    form = LoginForm(request.POST)
+    next = request.GET.get('next')
+    form = LoginForm(request.POST or None)
     if form.is_valid():
-        form.save()
-    return render(request, "login.html", {"form": form})
+        email = form.cleaned_data.get('email')
+        password = form.cleaned_data.get('password')
+        login(request, email)
+        if next:
+            return redirect(next)
+        return redirect('/')
+
+    context = {
+        'form': form,
+    }
+
+    return render(request, "login.html", context)
