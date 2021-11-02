@@ -11,12 +11,9 @@ from django.contrib.auth import (
     logout
 )
 
-<<<<<<< HEAD
-=======
 import datetime
 
 from django.contrib.auth import login
->>>>>>> 5dc1e06be1841b1dc19f6dfee4841a99a848ac20
 
 
 def index(request):
