@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+   <head>
+      <title>Make your booking</title>
+
+      <!-- Latest compiled and minified CSS -->
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+
+        <!-- jQuery library -->
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
+        <!-- Latest compiled JavaScript -->
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+
+
+    
+
+   </head>
+
+
+
+   <body>
+
+    <table id = toggled-element frame=void rules=rows>
+        {% for rowval in days %}    
+           <tr>
+           {% for val in rowval %}
+            <td  style="padding-right: 10px">{{val}}</td>
+           {% endfor %}
+          </tr>
+        {% endfor %}
+      </table> 
+
+      <ul>
+        {% for rowval in days %}
+            {% for val in rowval %}
+            <li>{{ val }}</li>
+            {% endfor %}
+        {% endfor %}
+      </ul> 
+
+   </body>
+
+   <script type = "text/javascript">
+    var mylist = document.getElementById("list").innerHTML;
+    for(i = 0; i < mylist.length; i++){
+        console.log(mylist[i])
+    };
+ </script>
+</html>
