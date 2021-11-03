@@ -35,10 +35,12 @@ def register(request):
     if request.method == 'POST':
         form = SignUpForm(request.POST)
         if form.is_valid():
-            form.save()
-            username = form.cleaned_data.get('username')
+            user = form.save()
+            user.refresh_from_db()  # load the profile instance created by the signal
+            # user.customer.birth_date = form.cleaned_data.get('birth_date')
+            user.save()
             raw_password = form.cleaned_data.get('password1')
-            user = authenticate(username=username, password=raw_password)
+            user = authenticate(username=user.username, password=raw_password)
             login(request, user)
             return redirect('home')
     else:
@@ -86,14 +88,13 @@ def selecttime(request, ):
 
 
 # @login_required
-def login(request, user):
+def loginUser(request):
 
     next = request.GET.get('next')
     form = LoginForm(request.POST or None)
     if form.is_valid():
-        email = form.cleaned_data.get('email')
-        password = form.cleaned_data.get('password')
-        login(request, email)
+        user = form.save()
+        login(request, user)
         if next:
             return redirect(next)
         return redirect('/')
