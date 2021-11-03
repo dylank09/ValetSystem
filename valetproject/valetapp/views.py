@@ -6,6 +6,7 @@ from .forms.signup import SignUpForm
 from .forms.login import LoginForm
 from .models import ChainStore
 from .models import Booking
+from .forms.bookService import AvailabilityForm
 
 #from django.contrib.auth.decorators import login_required
 from django.contrib.auth import (
@@ -15,7 +16,7 @@ from django.contrib.auth import (
     logout
 )
 
-from django.views.generic import ListView
+from django.views.generic import ListView,FormView
 
 import datetime
 
@@ -31,6 +32,7 @@ def chainstore_by_id(request, chainstore_id):
     return render(request, 'chainstore_details.html', {'chainStore': chainStore})
 
 
+
 def bookingscreen(request):
     return render(request, 'bookingscreen.html')
 
@@ -39,6 +41,9 @@ class BookingList(ListView):
     context_object_name='obj'
     template_name = 'booking_list.html'
 
+class BookingView(FormView):
+    form_class = AvailabilityForm
+    template_name = 'bookingservice_form.html'
 
 def register(request):
     if request.method == 'POST':

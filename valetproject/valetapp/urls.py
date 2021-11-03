@@ -1,9 +1,10 @@
 from django.urls import path
 from . import views
-from .views import BookingList
+from .views import BookingList, BookingView
 
 urlpatterns = [
     path('', views.index, name='index'),
+    path('bookingservice_form/', BookingView.as_view(), name='BookingView'),
     path('booking_list/', BookingList.as_view(), name='BookingList'),
     path('chainstore/<int:chainstore_id>',
          views.chainstore_by_id, name='chainstore_by_id'),
