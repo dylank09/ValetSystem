@@ -1,3 +1,5 @@
+from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth import login, authenticate
 from django.shortcuts import render, redirect
 from django.http import HttpResponse
 from .forms.signup import SignUpForm
@@ -30,24 +32,33 @@ def bookingscreen(request):
 
 
 def register(request):
-
-    form = SignUpForm(request.POST)
-    if form.is_valid():
-        form.save()
-    return render(request, "register.html", {"form": form})
+    if request.method == 'POST':
+        form = SignUpForm(request.POST)
+        if form.is_valid():
+            form.save()
+            username = form.cleaned_data.get('username')
+            raw_password = form.cleaned_data.get('password1')
+            user = authenticate(username=username, password=raw_password)
+            login(request, user)
+            return redirect('home')
+    else:
+        form = SignUpForm()
+    return render(request, 'register.html', {'form': form})
 
 
 def home(request):
     return render(request, 'home.html')
-    
+
+
 def selecttime(request, ):
 
-        #context = super(selecttime, self).get_context_data(**kwargs)
+    #context = super(selecttime, self).get_context_data(**kwargs)
     start_time = '9:00'
     end_time = '18:00'
     slot_time = 60
 
-    arrayOfDays = ["monday","tuesday","wenesday","thursday","friday","Saturday"]
+    arrayOfDays = ["monday", "tuesday", "wenesday",
+                   "thursday", "friday", "Saturday"]
     # Start date from today to next 5 day
     start_date = datetime.datetime.now().date()
     end_date = datetime.datetime.now().date() + datetime.timedelta(days=5)
@@ -68,16 +79,14 @@ def selecttime(request, ):
     for hours in days:
         array = [arrayOfDays[i], "-", hours]
         i = i + 1
-    
+
     #context['days'] = days
-    
+
     return render(request, 'selecttime.html', {'days': days})
 
 
-    
-
-#@login_required
-def login(request):
+# @login_required
+def login(request, user):
 
     next = request.GET.get('next')
     form = LoginForm(request.POST or None)

@@ -1,26 +1,28 @@
-from django.forms import ModelForm
 from django import forms
 from django.forms.widgets import EmailInput, PasswordInput
 from ..models.users.customer import Customer
-from django.contrib.auth import get_user_model
+from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth.models import User
 
 
-class SignUpForm(ModelForm):
-    firstname = forms.CharField(max_length=28, required=False)
-    surname = forms.CharField(max_length=28, required=False)
-    email = forms.EmailField(max_length=50, required=False, widget=EmailInput)
-    password = forms.CharField(
-        min_length=8, max_length=12, required=False, widget=PasswordInput)
+class SignUpForm(UserCreationForm):
+    first_name = forms.CharField(
+        max_length=30, required=False, help_text='Optional.')
+    last_name = forms.CharField(
+        max_length=30, required=False, help_text='Optional.')
+    email = forms.EmailField(
+        max_length=254, help_text='Required. Inform a valid email address.')
 
     class Meta:
-        model = Customer
-        fields = ['firstname', 'surname', 'email', 'password']
+        model = User
+        fields = ('username', 'first_name', 'last_name',
+                  'email', 'password1', 'password2', )
 
-    def clean_email(self):
-        email = self.cleaned_data.get('email')
-        email_qs = Customer.objects.filter(email=email)
-        if email_qs.exists():
-            raise forms.ValidationError(
-            'The email you supplied has already been used.'
-            )
-        return email
+    # def clean_email(self):
+    #     email = self.cleaned_data.get('email')
+    #     email_qs = Customer.objects.filter(email=email)
+    #     if email_qs.exists():
+    #         raise forms.ValidationError(
+    #         'The email you supplied has already been used.'
+    #         )
+    #     return email
