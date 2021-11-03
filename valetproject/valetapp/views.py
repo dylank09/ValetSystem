@@ -1,12 +1,14 @@
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth import login, authenticate
 from django.shortcuts import render, redirect
-from django.http import HttpResponse
+from django.http import HttpResponse, request
+
 from .forms.signup import SignUpForm
 from .forms.login import LoginForm
 from .models import ChainStore
-from .models import Booking
+from .models import Booking , ValetService
 from .forms.bookService import AvailabilityForm
+from .booking_functions.availability import check_availability
 
 #from django.contrib.auth.decorators import login_required
 from django.contrib.auth import (
@@ -44,6 +46,29 @@ class BookingList(ListView):
 class BookingView(FormView):
     form_class = AvailabilityForm
     template_name = 'bookingservice_form.html'
+
+    def form_valid(self, form):
+        data = form.cleaned_data
+        booking_list = ValetService.objects.filter(valetType=data['valet_categories'])
+        available_booking = []
+        for valetservice in booking_list:
+            if check_availability(valetservice, data['start_time'],data['end_time']):
+                available_booking.append(valetservice)
+        if len(available_booking)> 0:
+            valetservice = available_booking[0]
+            valetservice= Booking.objects.create(
+                user=request.user,
+                valetservice = valetservice,
+                start_time = data['start_time'],
+                end_time = data['end_time']
+            )
+            valetservice.save()
+            return HttpResponse(valetservice)
+        else:
+            return HttpResponse('This booking is already booked sorry pal')
+
+
+
 
 def register(request):
     if request.method == 'POST':
