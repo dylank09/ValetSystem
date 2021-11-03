@@ -5,6 +5,8 @@ from django.http import HttpResponse
 from .forms.signup import SignUpForm
 from .forms.login import LoginForm
 from .models import ChainStore
+from .models import Booking
+
 #from django.contrib.auth.decorators import login_required
 from django.contrib.auth import (
     authenticate,
@@ -12,6 +14,8 @@ from django.contrib.auth import (
     login,
     logout
 )
+
+from django.views.generic import ListView
 
 import datetime
 
@@ -29,6 +33,11 @@ def chainstore_by_id(request, chainstore_id):
 
 def bookingscreen(request):
     return render(request, 'bookingscreen.html')
+
+class BookingList(ListView):
+    model=Booking
+    context_object_name='obj'
+    template_name = 'booking_list.html'
 
 
 def register(request):
@@ -103,3 +112,4 @@ def login(request, user):
     }
 
     return render(request, "login.html", context)
+
