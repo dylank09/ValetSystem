@@ -6,9 +6,10 @@ from django.http import HttpResponse, request
 from .forms.signup import SignUpForm
 from .forms.login import LoginForm
 from .models import ChainStore
-from .models import Booking , ValetService
+from .models import Booking, ValetService
 from .forms.bookService import AvailabilityForm
 from .booking_functions.availability import check_availability
+from .Userfactory import Userfactory
 
 #from django.contrib.auth.decorators import login_required
 from django.contrib.auth import (
@@ -18,7 +19,7 @@ from django.contrib.auth import (
     logout
 )
 
-from django.views.generic import ListView,FormView
+from django.views.generic import ListView, FormView
 
 import datetime
 
@@ -34,14 +35,15 @@ def chainstore_by_id(request, chainstore_id):
     return render(request, 'chainstore_details.html', {'chainStore': chainStore})
 
 
-
 def bookingscreen(request):
     return render(request, 'bookingscreen.html')
 
+
 class BookingList(ListView):
-    model=Booking
-    context_object_name='obj'
+    model = Booking
+    context_object_name = 'obj'
     template_name = 'booking_list.html'
+
 
 class BookingView(FormView):
     form_class = AvailabilityForm
@@ -49,18 +51,19 @@ class BookingView(FormView):
 
     def form_valid(self, form):
         data = form.cleaned_data
-        booking_list = ValetService.objects.filter(valetType=data['valet_categories'])
+        booking_list = ValetService.objects.filter(
+            valetType=data['valet_categories'])
         available_booking = []
         for valetservice in booking_list:
-            if check_availability(valetservice, data['start_time'],data['end_time']):
+            if check_availability(valetservice, data['start_time'], data['end_time']):
                 available_booking.append(valetservice)
-        if len(available_booking)> 0:
+        if len(available_booking) > 0:
             valetservice = available_booking[0]
-            valetservice= Booking.objects.create(
+            valetservice = Booking.objects.create(
                 user=request.user,
-                valetservice = valetservice,
-                start_time = data['start_time'],
-                end_time = data['end_time']
+                valetservice=valetservice,
+                start_time=data['start_time'],
+                end_time=data['end_time']
             )
             valetservice.save()
             return HttpResponse(valetservice)
@@ -68,15 +71,13 @@ class BookingView(FormView):
             return HttpResponse('This booking is already booked sorry pal')
 
 
-
-
 def register(request):
     if request.method == 'POST':
+        factory = Userfactory
         form = SignUpForm(request.POST)
         if form.is_valid():
             user = form.save()
-            user.refresh_from_db()  # load the profile instance created by the signal
-            # user.customer.birth_date = form.cleaned_data.get('birth_date')
+            factory.createuser(factory, form, user)
             user.save()
             raw_password = form.cleaned_data.get('password1')
             user = authenticate(username=user.username, password=raw_password)
@@ -143,4 +144,3 @@ def loginUser(request):
     }
 
     return render(request, "login.html", context)
-

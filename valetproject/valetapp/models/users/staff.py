@@ -1,6 +1,11 @@
 from django.db import models
+from django.contrib.auth.models import User
+from django.dispatch import receiver
+import uuid
 
 
 class Staff(models.Model):
-    # membershipType = models.ForeignKey(MembershipType)
-    colour = models.CharField(max_length=23)
+    user = models.ForeignKey(
+        User, on_delete=models.CASCADE)
+    staffId = models.UUIDField(
+        max_length=100, blank=True, unique=True, default=uuid.uuid4)
