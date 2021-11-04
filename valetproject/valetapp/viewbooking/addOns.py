@@ -35,3 +35,5 @@ class Polish(Abstract_Valet_Decorator):
 
     def get_duration(self):
         return self.decorated_valet.get_duration() + 1
+
+    
