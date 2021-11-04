@@ -1,13 +1,24 @@
 from django.db import models
-
+from enum import Enum
 from .users.customer import Customer
 from .valetservice import ValetService
+
+class BookingStates(Enum):
+    PENDING = 'pending'
+    BOOKED =  'booked'
+    CANCELLED = 'cancelled'
+    END_TIME = 'endtime'
+
+    @classmethod
+    def tuples(cls): return tuple((state.name, state.value) for state in cls)
+
 
 class Booking(models.Model):
     #bookingNumber = models.CharField(default = random_string)
     user = models.ForeignKey(Customer, on_delete=models.CASCADE)
     start_time = models.TimeField()
     end_time = models.TimeField()
+    booking_state = models.CharField(max_length=20, choices=BookingStates.tuples(), default= bookingStates.PENDING)
     valetservice = models.ForeignKey(ValetService, on_delete=models.CASCADE)
     carReg = models.DecimalField(max_digits=20, decimal_places=15)
 
