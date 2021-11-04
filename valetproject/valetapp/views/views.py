@@ -3,13 +3,13 @@ from django.contrib.auth import login, authenticate
 from django.shortcuts import render, redirect
 from django.http import HttpResponse, request
 
-from .forms.signup import SignUpForm
-from .forms.login import LoginForm
-from .models import ChainStore
-from .models import Booking, ValetService
-from .forms.bookService import AvailabilityForm
-from .booking_functions.availability import check_availability
-from .Userfactory import Userfactory
+from ..forms.signup import SignUpForm
+from ..forms.login import LoginForm
+from ..models import ChainStore
+from ..models import Booking, ValetService
+from ..forms.bookService import AvailabilityForm
+from ..booking_functions.availability import check_availability
+from ..Userfactory import Userfactory
 
 #from django.contrib.auth.decorators import login_required
 from django.contrib.auth import (
