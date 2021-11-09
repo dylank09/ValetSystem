@@ -8,32 +8,33 @@ class Abstract_Valet_Decorator(Abstract_Valet):
     def __init__(self, decorated_valet):
         self.decorated_valet = decorated_valet
 
-    def get_cost(self):
-        return self.decorated_valet.get_cost()
+    def getValetStatus(self):
+        return self.decorated_valet.getValetStatus()
 
-    def get_duration(self):
-        return self.decorated_valet.get_duration()
+    def getValetStatusEnd(self):
+      return self.decorated_valet.getValetStatusEnd()
 
-class Wax(Abstract_Valet_Decorator):
 
-    def __init__(self, decorated_valet):
-        self.decorated_valet = decorated_valet
-
-    def get_cost(self):
-        return self.decorated_valet.get_cost() + 5
-
-    def get_duration(self):
-        return self.decorated_valet.get_duration() + 1
-
-class Polish(Abstract_Valet_Decorator):
+class WaxStatus(Abstract_Valet_Decorator):
 
     def __init__(self, decorated_valet):
         self.decorated_valet = decorated_valet
 
-    def get_cost(self):
-        return self.decorated_valet.get_cost() + 10
+    def getValetStatus(self):
+        return self.decorated_valet.getValetStatus() + 'Wax has now started'
 
-    def get_duration(self):
-        return self.decorated_valet.get_duration() + 1
+    def getValetStatus(self):
+        return self.decorated_valet.getValetStatusEnd() + 'Wax has now Ended'
+
+class PolishStatus(Abstract_Valet_Decorator):
+
+    def __init__(self, decorated_valet):
+        self.decorated_valet = decorated_valet
+
+    def getValetStatus(self):
+        return self.decorated_valet.getValetStatus() + 'Polish has now started'
+
+    def getValetStatus(self):
+        return self.decorated_valet.getValetStatusEnd() + 'Polish has now Ended'
 
     
