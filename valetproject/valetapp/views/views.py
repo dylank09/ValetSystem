@@ -6,7 +6,8 @@ from django.http import HttpResponse, request
 from ..forms.signup import SignUpForm
 from ..forms.login import LoginForm
 from ..models import ChainStore
-from ..models import Booking, ValetService
+from ..models import Booking
+from ..models.valetservice import CompositeBaseValet, CompositeExterior, Wash, Wax, Polish, CompositeInterior, SteamClean, Hoover, Leather
 from ..forms.bookService import AvailabilityForm
 from ..booking_functions.availability import check_availability
 from ..Userfactory import Userfactory
@@ -89,6 +90,39 @@ def register(request):
 
 
 def home(request):
+    Wax1 = Wax()
+    Wash1 = Wash()
+    Polish1 = Polish()
+
+    Hoover1 = Hoover()
+    SteamClean1 = SteamClean()
+    Leather1 = Leather()
+
+    MainComposite = CompositeBaseValet()
+    Composti1 = CompositeExterior()
+    Composti1.add(Wax1)
+    Composti1.add(Wash1)
+
+    Composti1.add(Polish1)
+
+    Composti2 = CompositeInterior()
+    Composti2.add(Hoover1)
+    Composti2.add(SteamClean1)
+
+    Composti2.add(Leather1)
+    Composti1.addCost()
+    Composti2.addCost()
+    MainComposite.add(Composti1)
+    MainComposite.add(Composti2)
+    MainComposite.addCost()
+    # MainComposite.addDuration()
+    # Composti1.addCost()
+    # Composti1.addDuration()
+
+    # Composti2 = CompositeExterior()
+    # Composti2.add(Ellipse1)
+    # Composti2.add(Circle1)
+    # Composti2.print()
     return render(request, 'home.html')
 
 
