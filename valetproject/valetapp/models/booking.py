@@ -3,7 +3,6 @@ from enum import Enum
 from .users.customer import Customer
 # from .valetservice import ValetService
 
-
 class BookingStates(Enum):
     PENDING = 'pending'
     BOOKED = 'booked'

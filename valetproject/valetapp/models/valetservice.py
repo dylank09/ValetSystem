@@ -13,42 +13,42 @@ class BaseValet(metaclass=ABCMeta):
 
 class CompositeBaseValet(BaseValet):
     def __init__(self):
-        self.child_graphics = []
+        self.childValet = []
         self.cost = 0
         self.duration = 0
 
-    def add(self, graphic):
-        self.child_graphics.append(graphic)
+    def add(self, valet):
+        self.childValet.append(valet)
 
     def addCost(self):
-        for g in self.child_graphics:
-            for h in g.child_graphics:
+        for g in self.childValet:
+            for h in g.childValet:
                 self.cost += h.addCost()
         print(self.cost)
 
     def addDuration(self):
-        for g in self.child_graphics:
-            for h in g.child_graphics:
+        for g in self.childValet:
+            for h in g.childValet:
                 self.duration += g.addDuration()
         print(self.duration)
 
 
 class CompositeExterior(CompositeBaseValet):
     def __init__(self):
-        self.child_graphics = []
+        self.childValet = []
         self.cost = 0
         self.duration = 0
 
-    def add(self, graphic):
-        self.child_graphics.append(graphic)
+    def add(self, valet):
+        self.childValet.append(valet)
 
     def addCost(self):
-        for g in self.child_graphics:
+        for g in self.childValet:
             self.cost += g.addCost()
         print(self.cost)
 
     def addDuration(self):
-        for g in self.child_graphics:
+        for g in self.childValet:
             self.duration += g.addDuration()
         print(self.duration)
 
@@ -79,20 +79,20 @@ class Polish(CompositeExterior):
 
 class CompositeInterior(CompositeBaseValet):
     def __init__(self):
-        self.child_graphics = []
+        self.childValet = []
         self.cost = 0
         self.duration = 0
 
-    def add(self, graphic):
-        self.child_graphics.append(graphic)
+    def add(self, valet):
+        self.childValet.append(valet)
 
     def addCost(self):
-        for g in self.child_graphics:
+        for g in self.childValet:
             self.cost += g.addCost()
         print(self.cost)
 
     def addDuration(self):
-        for g in self.child_graphics:
+        for g in self.childValet:
             self.duration += g.addDuration()
         print(self.duration)
 

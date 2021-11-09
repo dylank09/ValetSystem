@@ -115,14 +115,6 @@ def home(request):
     MainComposite.add(Composti1)
     MainComposite.add(Composti2)
     MainComposite.addCost()
-    # MainComposite.addDuration()
-    # Composti1.addCost()
-    # Composti1.addDuration()
-
-    # Composti2 = CompositeExterior()
-    # Composti2.add(Ellipse1)
-    # Composti2.add(Circle1)
-    # Composti2.print()
     return render(request, 'home.html')
 
 
