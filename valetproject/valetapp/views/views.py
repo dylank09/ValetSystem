@@ -7,7 +7,7 @@ from ..forms.signup import SignUpForm
 from ..forms.login import LoginForm
 from ..models import ChainStore
 from ..models import Booking
-from ..models.valetservice import CompositeBaseValet, CompositeExterior, Wash, Wax, Polish, CompositeInterior, SteamClean, Hoover, Leather
+from ..models.valetservice import CompositeBaseValet, CompositeExterior, Wash, Wax, Polish, CompositeInterior, SteamClean, Hoover, Leather, Valet
 from ..forms.bookService import AvailabilityForm
 from ..booking_functions.availability import check_availability
 from ..Userfactory import Userfactory
@@ -43,8 +43,7 @@ def bookingscreen(request):
 class BookingList(ListView):
     model = Booking
     context_object_name = 'obj'
-    template_name = 'booking_list.html'
-
+    template_name = 'valetObjects.html'
 
 class BookingView(FormView):
     form_class = AvailabilityForm
@@ -52,19 +51,37 @@ class BookingView(FormView):
 
     def form_valid(self, form):
         data = form.cleaned_data
-        booking_list = ValetService.objects.filter(
-            valetType=data['valet_categories'])
+        valetSelected = data['valet_services']
         available_booking = []
-        for valetservice in booking_list:
-            if check_availability(valetservice, data['start_time'], data['end_time']):
-                available_booking.append(valetservice)
+        for valet in valetSelected:
+            available_booking.append(valet)
+        print(available_booking)
+        # for valetservice in booking_list:
+        #     if check_availability(valetservice, data['start_time'], data['end_time']):
+        #         available_booking.append(valetservice)
+        MainComposite = CompositeBaseValet()
+        Composti1 = CompositeExterior()
+
+        for valet in available_booking:
+            if(valet == "Wax"):
+                Composti1.add(Wax())
+            if(valet == "Was"):
+                Composti1.add(Wash())
+            if(valet == "Polish"):
+                Composti1.add(Polish())
+
+        Composti2 = CompositeInterior()
+        MainComposite.add(Composti1)
+        MainComposite.add(Composti2)
+        bookingDuration = MainComposite.addDuration()
+
         if len(available_booking) > 0:
             valetservice = available_booking[0]
             valetservice = Booking.objects.create(
                 user=request.user,
-                valetservice=valetservice,
-                start_time=data['start_time'],
-                end_time=data['end_time']
+                valetservice = valetservice,
+                start_time = data['start_time'],
+                end_time = bookingDuration
             )
             valetservice.save()
             return HttpResponse(valetservice)
@@ -110,13 +127,10 @@ def home(request):
     Composti2.add(SteamClean1)
 
     Composti2.add(Leather1)
-    Composti1.addCost()
-    Composti2.addCost()
     MainComposite.add(Composti1)
     MainComposite.add(Composti2)
-    MainComposite.addCost()
+    MainComposite.addDuration()
     return render(request, 'home.html')
-
 
 def selecttime(request, ):
 
@@ -125,7 +139,7 @@ def selecttime(request, ):
     end_time = '18:00'
     slot_time = 60
 
-    arrayOfDays = ["monday", "tuesday", "wenesday",
+    arrayOfDays = ["monday", "tuesday", "Wednesday",
                    "thursday", "friday", "Saturday"]
     # Start date from today to next 5 day
     start_date = datetime.datetime.now().date()
