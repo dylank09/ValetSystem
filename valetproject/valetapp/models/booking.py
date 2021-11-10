@@ -1,7 +1,8 @@
 from django.db import models
 from enum import Enum
 from .users.customer import Customer
-# from .valetservice import ValetService
+from .valet import Valet
+
 
 class BookingStates(Enum):
     PENDING = 'pending'
@@ -16,12 +17,12 @@ class BookingStates(Enum):
 class Booking(models.Model):
     #bookingNumber = models.CharField(default = random_string)
     user = models.ForeignKey(Customer, on_delete=models.CASCADE)
-    start_time = models.TimeField()
-    end_time = models.TimeField()
-    booking_state = models.CharField(
-        max_length=20, choices=BookingStates.tuples(), default=BookingStates.PENDING)
-    # valetservice = models.ForeignKey(ValetService, on_delete=models.CASCADE)
-    carReg = models.DecimalField(max_digits=20, decimal_places=15)
+    start_time = models.DateTimeField()
+    end_time = models.DateTimeField()
+    # booking_state = models.CharField(
+    #     max_length=20, choices=BookingStates.tuples(), default=BookingStates.PENDING)
+    valetservice = models.ForeignKey(Valet, on_delete=models.CASCADE)
+    # carReg = models.DecimalField(max_digits=20, decimal_places=15)
 
     def book(self): self.booking_state = BookingStates.BOOKED
 
