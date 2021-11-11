@@ -5,11 +5,13 @@ from django.dispatch import receiver
 from abc import ABC, abstractmethod
 
 from .membershiptype import MembershipType
-from ..booking import Subject
+# from ..booking import Subject
 
-from .observer import Observer
+# from .observer import Observer
 
-class Customer(models.Model, Observer):
+# class Customer(models.Model, Observer):
+    
+class Customer(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     membershipType = models.ForeignKey(
         MembershipType, on_delete=models.RESTRICT, null=True)
