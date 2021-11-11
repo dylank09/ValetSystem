@@ -1,7 +1,23 @@
 from django.db import models
 from enum import Enum
+
 from .users.customer import Customer
-# from .valetservice import ValetService
+from abc import ABC, abstractmethod
+from users.customer import Observer
+
+class Subject(ABC):
+
+    @abstractmethod
+    def attach(self, observer: Observer) -> None:
+        pass
+
+    @abstractmethod
+    def detach(self, observer: Observer) -> None:
+        pass
+
+    @abstractmethod
+    def notify(self) -> None:
+        pass
 
 class BookingStates(Enum):
     PENDING = 'pending'
@@ -13,7 +29,7 @@ class BookingStates(Enum):
     def tuples(cls): return tuple((state.name, state.value) for state in cls)
 
 
-class Booking(models.Model):
+class Booking(models.Model, Subject):
     #bookingNumber = models.CharField(default = random_string)
     user = models.ForeignKey(Customer, on_delete=models.CASCADE)
     start_time = models.TimeField()
@@ -22,6 +38,7 @@ class Booking(models.Model):
         max_length=20, choices=BookingStates.tuples(), default=BookingStates.PENDING)
     # valetservice = models.ForeignKey(ValetService, on_delete=models.CASCADE)
     carReg = models.DecimalField(max_digits=20, decimal_places=15)
+    price = models.DecimalField(max_digits=20, decimal_places=2)
 
     def book(self): self.booking_state = BookingStates.BOOKED
 
