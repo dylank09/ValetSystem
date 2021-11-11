@@ -49,48 +49,7 @@ class BookingList(ListView):
     template_name = 'booking_list.html'
 
 
-class BookingView(FormView):
-    form_class = AvailabilityForm
-    template_name = 'bookingservice_form.html'
 
-    def form_valid(request):
-        data = form.cleaned_data
-        valetSelected = data['valet_services']
-        available_booking = []
-        for valet in valetSelected:
-            available_booking.append(valet)
-        print(available_booking)
-        # for valetservice in booking_list:
-        #     if check_availability(valetservice, data['start_time'], data['end_time']):
-        #         available_booking.append(valetservice)
-        MainComposite = CompositeBaseValet()
-        Composti1 = CompositeExterior()
-
-        for valet in available_booking:
-            if(valet == "Wax"):
-                Composti1.add(Wax())
-            if(valet == "Wash"):
-                Composti1.add(Wash())
-            if(valet == "Polish"):
-                Composti1.add(Polish())
-
-        Composti2 = CompositeInterior()
-        MainComposite.add(Composti1)
-        MainComposite.add(Composti2)
-        bookingDuration = MainComposite.addDuration()
-        print(bookingDuration)
-        if len(available_booking) > 0:
-            valetservice = available_booking[0]
-            valetservice = Booking.objects.create(
-                user=request.user,
-                valetservice=valetservice,
-                start_time=data['start_time'],
-                end_time=bookingDuration
-            )
-            valetservice.save()
-            return HttpResponse(valetservice)
-        else:
-            return HttpResponse('This booking is already booked sorry pal')
 
 
 def bookingCreate(request):
