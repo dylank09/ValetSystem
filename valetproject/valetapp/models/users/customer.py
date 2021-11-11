@@ -5,6 +5,7 @@ from django.dispatch import receiver
 from abc import ABC, abstractmethod
 
 from .membershiptype import MembershipType
+from ..booking import Subject
 
 from .observer import Observer
 
