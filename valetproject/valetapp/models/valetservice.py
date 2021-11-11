@@ -7,6 +7,8 @@ class BaseValet(metaclass=ABCMeta):
     @abstractmethod
     def addDuration():
         """add duration"""
+    def getDuration():
+        """get duration"""
 
 
 class CompositeBaseValet(BaseValet):
@@ -25,6 +27,9 @@ class CompositeBaseValet(BaseValet):
         print(self.duration)
         return self.duration
 
+    def getDuration(self):
+        return self.duration
+
 
 class CompositeExterior(CompositeBaseValet):
     def __init__(self):
@@ -39,6 +44,9 @@ class CompositeExterior(CompositeBaseValet):
         for g in self.childValet:
             self.duration += g.addDuration()
         print(self.duration)
+
+    def getDuration(self):
+        return self.duration
 
 
 class Wash(CompositeExterior):

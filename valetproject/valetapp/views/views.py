@@ -13,6 +13,9 @@ from ..models.users.customer import Customer
 from ..forms.bookService import AvailabilityForm
 from ..booking_functions.availability import check_availability
 from ..Userfactory import Userfactory
+from .addOns import Concrete_Valet, WaxStatus
+import time
+
 
 #from django.contrib.auth.decorators import login_required
 from django.contrib.auth import (
@@ -25,8 +28,10 @@ from django.contrib.auth import (
 from django.views.generic import ListView, FormView
 
 import datetime
-
+from datetime import datetime
+import pytz
 from django.contrib.auth import login
+utc = pytz.UTC
 
 
 def index(request):
@@ -38,14 +43,10 @@ def chainstore_by_id(request, chainstore_id):
     return render(request, 'chainstore_details.html', {'chainStore': chainStore})
 
 
-def bookingscreen(request):
-    return render(request, 'bookingscreen.html')
-
-
 class BookingList(ListView):
     model = Booking
     context_object_name = 'obj'
-    template_name = 'valetObjects.html'
+    template_name = 'booking_list.html'
 
 
 class BookingView(FormView):
@@ -235,3 +236,30 @@ def loginUser(request):
     }
 
     return render(request, "login.html", context)
+
+
+def viewBooking(request, bookingId):
+    booking = Booking.objects.get(pk=bookingId)
+    print(booking.valetservice)
+    datetimeToday = datetime.now().replace(tzinfo=utc)
+    hasBookingStarted = 'Booking has not started yet'
+    if booking.start_time <= datetimeToday.replace(tzinfo=utc):
+        hasBookingStarted = ""
+        baseValet = Concrete_Valet()
+        print(baseValet.getValetStatus())
+        print(booking.valetservice.getName())
+        if booking.valetservice.getName() == 'Wax':
+            print("Hello")
+            baseValet = WaxStatus(baseValet)
+            print(baseValet.getValetStatus())
+            Wax1 = Wax()
+            print(Wax1.addDuration())
+            time.sleep(Wax1.addDuration())
+            print(baseValet.getValetStatusEnd())
+    else:
+        pass
+    booking = {
+        'booking': booking,
+        'hasBookingStarted': hasBookingStarted
+    }
+    return render(request, "bookingView.html", {'booking': booking})

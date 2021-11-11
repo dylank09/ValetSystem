@@ -3,9 +3,7 @@ from ..models.valet import Valet
 
 
 class AvailabilityForm(forms.Form):
-    print("Hello")
     valetObjects = Valet.objects.all()
-    print(valetObjects)
     VALET_CATERGORIES = []
     for valet in valetObjects:
         VALET_CATERGORIES.append((valet, valet.getName()))
