@@ -47,9 +47,14 @@ class BookingList(ListView):
     template_name = 'booking_list.html'
 
 
-# def payForBooking(request, booking):
+def payForBooking(request, bookingId):
+    booking = Booking.objects.get(pk=bookingId)
     
-#     return render(request, "bookingView.html", {'booking': booking})
+    customer= Customer.objects.filter(user=request.user)[0]
+    print(booking.getPrice())
+    customer.update(booking)
+    print(booking.getPrice())
+    return render(request, "bookingView.html")
 
 
 def bookingCreate(request):
@@ -240,7 +245,5 @@ def viewBooking(request, bookingId):
             if service == 'Leather':
                 baseValet = LeatherCost(baseValet)
         totalBookingCost = baseValet.getValetCost()
-    else:
-        pass
     bookingObject['totalBookingCost'] = totalBookingCost
     return render(request, "bookingView.html", {'booking': bookingObject})

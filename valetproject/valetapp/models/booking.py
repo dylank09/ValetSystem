@@ -24,7 +24,7 @@ class Booking(models.Model, Subject):
     #     max_length=20, choices=BookingStates.tuples(), default=BookingStates.PENDING)
     valetservice = models.CharField(max_length=200, default="")
     # carReg = models.DecimalField(max_digits=20, decimal_places=15)
-    price = models.DecimalField(decimal_places=2, default=0.00, max_digits=200)
+    price = models.FloatField(default=0.00)
 
     def book(self): self.booking_state = BookingStates.BOOKED
 
