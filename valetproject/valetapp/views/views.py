@@ -49,9 +49,9 @@ class BookingList(ListView):
     template_name = 'booking_list.html'
 
 
-def payForBooking(request):
+# def payForBooking(request, booking):
     
-    return render(request, "bookingView.html", {'booking': booking})
+#     return render(request, "bookingView.html", {'booking': booking})
 
 
 def bookingCreate(request):
