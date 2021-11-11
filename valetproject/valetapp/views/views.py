@@ -6,11 +6,16 @@ from django.http import HttpResponse, request
 from ..forms.signup import SignUpForm
 from ..forms.login import LoginForm
 from ..models import ChainStore
-from ..models import Booking
+from ..models.booking import Booking
 from ..models.valetservice import CompositeBaseValet, CompositeExterior, Wash, Wax, Polish, CompositeInterior, SteamClean, Hoover, Leather
+from ..models.valet import Valet
+from ..models.users.customer import Customer
 from ..forms.bookService import AvailabilityForm
 from ..booking_functions.availability import check_availability
 from ..Userfactory import Userfactory
+from .addOns import Concrete_Valet, WaxStatus
+import time
+
 
 #from django.contrib.auth.decorators import login_required
 from django.contrib.auth import (
@@ -23,8 +28,10 @@ from django.contrib.auth import (
 from django.views.generic import ListView, FormView
 
 import datetime
-
+from datetime import datetime
+import pytz
 from django.contrib.auth import login
+utc = pytz.UTC
 
 
 def index(request):
@@ -36,40 +43,60 @@ def chainstore_by_id(request, chainstore_id):
     return render(request, 'chainstore_details.html', {'chainStore': chainStore})
 
 
-def bookingscreen(request):
-    return render(request, 'bookingscreen.html')
-
-
 class BookingList(ListView):
     model = Booking
     context_object_name = 'obj'
     template_name = 'booking_list.html'
 
 
-class BookingView(FormView):
-    form_class = AvailabilityForm
-    template_name = 'bookingservice_form.html'
+# def payForBooking(request, booking):
+    
+#     return render(request, "bookingView.html", {'booking': booking})
 
-    def form_valid(self, form):
-        data = form.cleaned_data
-        booking_list = ValetService.objects.filter(
-            valetType=data['valet_categories'])
-        available_booking = []
-        for valetservice in booking_list:
-            if check_availability(valetservice, data['start_time'], data['end_time']):
-                available_booking.append(valetservice)
-        if len(available_booking) > 0:
-            valetservice = available_booking[0]
-            valetservice = Booking.objects.create(
-                user=request.user,
-                valetservice=valetservice,
-                start_time=data['start_time'],
-                end_time=data['end_time']
-            )
-            valetservice.save()
-            return HttpResponse(valetservice)
-        else:
-            return HttpResponse('This booking is already booked sorry pal')
+
+def bookingCreate(request):
+    if request.method == 'POST':
+        form = AvailabilityForm(request.POST)
+        if form.is_valid():
+            data = form.cleaned_data
+            valetSelected = data['valet_services']
+            available_booking = []
+            for valet in valetSelected:
+                available_booking.append(valet)
+            print(available_booking)
+            
+            MainComposite = CompositeBaseValet()
+            Composti1 = CompositeExterior()
+
+            for valet in available_booking:
+                if(valet == "Wax"):
+                    Composti1.add(Wax())
+                if(valet == "Wash"):
+                    Composti1.add(Wash())
+                if(valet == "Polish"):
+                    Composti1.add(Polish())
+
+            Composti2 = CompositeInterior()
+            MainComposite.add(Composti1)
+            MainComposite.add(Composti2)
+            bookingDuration = MainComposite.addDuration()
+            bookingDuration = datetime.timedelta(minutes=bookingDuration)
+            print(bookingDuration)
+            if len(available_booking) > 0:
+                print("ID", request.user.id)
+                valetservice2 = available_booking[0]
+                booking = Booking(
+                    user=Customer.objects.filter(user=request.user)[0],
+                    valetservice=Valet.objects.filter(name=valetservice2)[0],
+                    start_time=data['start_time'],
+                    end_time=data['start_time'] + bookingDuration
+                )
+                print(booking)
+                booking.save()
+            return redirect('home')
+    else:
+        form = AvailabilityForm()
+    return render(request, 'bookingservice_form.html', {'form': form})
 
 
 def register(request):
@@ -110,11 +137,9 @@ def home(request):
     Composti2.add(SteamClean1)
 
     Composti2.add(Leather1)
-    Composti1.addCost()
-    Composti2.addCost()
     MainComposite.add(Composti1)
     MainComposite.add(Composti2)
-    MainComposite.addCost()
+    MainComposite.addDuration()
     return render(request, 'home.html')
 
 
@@ -125,7 +150,7 @@ def selecttime(request, ):
     end_time = '18:00'
     slot_time = 60
 
-    arrayOfDays = ["monday", "tuesday", "wenesday",
+    arrayOfDays = ["monday", "tuesday", "Wednesday",
                    "thursday", "friday", "Saturday"]
     # Start date from today to next 5 day
     start_date = datetime.datetime.now().date()
@@ -170,3 +195,28 @@ def loginUser(request):
     }
 
     return render(request, "login.html", context)
+
+
+def viewBooking(request, bookingId):
+    booking = Booking.objects.get(pk=bookingId)
+    print(booking.valetservice)
+    datetimeToday = datetime.now().replace(tzinfo=utc)
+    hasBookingStarted = 'Booking has not started yet'
+    if booking.start_time <= datetimeToday.replace(tzinfo=utc):
+        hasBookingStarted = ""
+        baseValet = Concrete_Valet()
+        print(baseValet.getValetStatus())
+        print(booking.valetservice.getName())
+        if booking.valetservice.getName() == 'Wax':
+            print("Hello")
+            baseValet = WaxStatus(baseValet)
+            print(baseValet.getValetStatus())
+            Wax1 = Wax()
+            print(Wax1.addDuration())
+            time.sleep(Wax1.addDuration())
+            print(baseValet.getValetStatusEnd())
+    booking = {
+        'booking': booking,
+        'hasBookingStarted': hasBookingStarted
+    }
+    return render(request, "bookingView.html", {'booking': booking})
