@@ -7,13 +7,13 @@ from ..forms.signup import SignUpForm
 from ..forms.login import LoginForm
 from ..models import ChainStore
 from ..models.booking import Booking
-from ..models.valetservice import CompositeBaseValet, CompositeExterior, Wash, Wax, Polish, CompositeInterior, SteamClean, Hoover, Leather
+from ..models.valetservice import CompositeBaseValet, CompositeExterior, Wash, Wax, Polish, CompositeInterior, SteamClean, Vacuum, Leather
 from ..models.valet import Valet
 from ..models.users.customer import Customer
 from ..forms.bookService import AvailabilityForm
 from ..booking_functions.availability import check_availability
 from ..Userfactory import Userfactory
-from .addOns import Concrete_Valet, WaxStatus
+from .addOns import Concrete_Valet, WaxCost, WashCost, PolishCost ,LeatherCost, SteamCleanCost, VacuumCost
 import time
 
 
@@ -26,9 +26,7 @@ from django.contrib.auth import (
 )
 
 from django.views.generic import ListView, FormView
-
-import datetime
-from datetime import datetime
+from datetime import datetime, timedelta
 import pytz
 from django.contrib.auth import login
 utc = pytz.UTC
@@ -67,29 +65,47 @@ def bookingCreate(request):
             
             MainComposite = CompositeBaseValet()
             Composti1 = CompositeExterior()
+            Composti2 = CompositeInterior()
+            baseValet = Concrete_Valet()
+            totalBookingCost = 0
+            valets = ""
 
             for valet in available_booking:
                 if(valet == "Wax"):
                     Composti1.add(Wax())
+                    baseValet = WaxCost(baseValet)
                 if(valet == "Wash"):
                     Composti1.add(Wash())
+                    baseValet = WashCost(baseValet)
                 if(valet == "Polish"):
                     Composti1.add(Polish())
+                    baseValet = PolishCost(baseValet)
+                if(valet == "Vacuum"):
+                    Composti2.add(Vacuum())
+                    baseValet = VacuumCost(baseValet)
+                if(valet == "Steam"):
+                    Composti2.add(SteamClean())
+                    baseValet = SteamCleanCost(baseValet)
+                if(valet == "Leather"):
+                    Composti2.add(Leather())
+                    baseValet = LeatherCost(baseValet)
+                valets = valet+","+valets
+            totalBookingCost = baseValet.getValetCost()
 
-            Composti2 = CompositeInterior()
             MainComposite.add(Composti1)
             MainComposite.add(Composti2)
             bookingDuration = MainComposite.addDuration()
-            bookingDuration = datetime.timedelta(minutes=bookingDuration)
+            bookingDuration = timedelta(minutes=bookingDuration)
             print(bookingDuration)
+            print(data['start_time'])
+            print(data['start_time'] + bookingDuration)
             if len(available_booking) > 0:
-                print("ID", request.user.id)
-                valetservice2 = available_booking[0]
                 booking = Booking(
                     user=Customer.objects.filter(user=request.user)[0],
-                    valetservice=Valet.objects.filter(name=valetservice2)[0],
+                    valetservice=valets,
                     start_time=data['start_time'],
-                    end_time=data['start_time'] + bookingDuration
+                    end_time=data['start_time'] + bookingDuration,
+                    price=totalBookingCost
                 )
                 print(booking)
                 booking.save()
@@ -121,7 +137,7 @@ def home(request):
     Wash1 = Wash()
     Polish1 = Polish()
 
-    Hoover1 = Hoover()
+    Vacuum1 = Vacuum()
     SteamClean1 = SteamClean()
     Leather1 = Leather()
 
@@ -133,7 +149,7 @@ def home(request):
     Composti1.add(Polish1)
 
     Composti2 = CompositeInterior()
-    Composti2.add(Hoover1)
+    Composti2.add(Vacuum1)
     Composti2.add(SteamClean1)
 
     Composti2.add(Leather1)
@@ -199,24 +215,32 @@ def loginUser(request):
 
 def viewBooking(request, bookingId):
     booking = Booking.objects.get(pk=bookingId)
-    print(booking.valetservice)
+    services = booking.valetservice.split(',')
     datetimeToday = datetime.now().replace(tzinfo=utc)
     hasBookingStarted = 'Booking has not started yet'
-    if booking.start_time <= datetimeToday.replace(tzinfo=utc):
-        hasBookingStarted = ""
-        baseValet = Concrete_Valet()
-        print(baseValet.getValetStatus())
-        print(booking.valetservice.getName())
-        if booking.valetservice.getName() == 'Wax':
-            print("Hello")
-            baseValet = WaxStatus(baseValet)
-            print(baseValet.getValetStatus())
-            Wax1 = Wax()
-            print(Wax1.addDuration())
-            time.sleep(Wax1.addDuration())
-            print(baseValet.getValetStatusEnd())
-    booking = {
+    bookingObject = {
         'booking': booking,
         'hasBookingStarted': hasBookingStarted
     }
-    return render(request, "bookingView.html", {'booking': booking})
+    totalBookingCost = 0
+    if booking.start_time <= datetimeToday.replace(tzinfo=utc):
+        hasBookingStarted = ""
+        baseValet = Concrete_Valet()
+        for service in services:
+            if service == 'Wax':
+                baseValet = WaxCost(baseValet)
+            if service == 'Wash':
+                baseValet = WashCost(baseValet)
+            if service == 'Polish':
+                baseValet = PolishCost(baseValet)
+            if service == 'Steam':
+                baseValet = SteamCleanCost(baseValet)
+            if service == 'Vacuum':
+                baseValet = VacuumCost(baseValet)
+            if service == 'Leather':
+                baseValet = LeatherCost(baseValet)
+        totalBookingCost = baseValet.getValetCost()
+    else:
+        pass
+    bookingObject['totalBookingCost'] = totalBookingCost
+    return render(request, "bookingView.html", {'booking': bookingObject})

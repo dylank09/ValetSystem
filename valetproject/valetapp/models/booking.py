@@ -22,7 +22,7 @@ class Booking(models.Model, Subject):
     end_time = models.DateTimeField()
     # booking_state = models.CharField(
     #     max_length=20, choices=BookingStates.tuples(), default=BookingStates.PENDING)
-    valetservice = models.ForeignKey(Valet, on_delete=models.CASCADE)
+    valetservice = models.CharField(max_length=200, default="")
     # carReg = models.DecimalField(max_digits=20, decimal_places=15)
     price = models.DecimalField(decimal_places=2, default=0.00)
 

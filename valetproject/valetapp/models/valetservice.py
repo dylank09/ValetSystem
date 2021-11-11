@@ -79,7 +79,7 @@ class CompositeInterior(CompositeBaseValet):
         print(self.duration)
 
 
-class Hoover(CompositeInterior):
+class Vacuum(CompositeInterior):
     def addDuration(self):
         return 10
 

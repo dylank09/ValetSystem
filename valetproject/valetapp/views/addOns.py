@@ -5,20 +5,15 @@ from abc import ABCMeta
 @six.add_metaclass(ABCMeta)
 class Abstract_StatusOfValet(object):
 
-    def getValetStatus(self):
-        pass
-
-    def getValetStatusEnd(self):
+    def getValetCost(self):
         pass
 
 
 class Concrete_Valet(Abstract_StatusOfValet):
 
-    def getValetStatus(self):
-        return 'A new valet service type has started'
+    def getValetCost(self):
+        return 10
 
-    def getValetStatusEnd(self):
-        return 'The new valet service type has started'
 
 
 @six.add_metaclass(ABCMeta)
@@ -27,32 +22,57 @@ class Abstract_Valet_Decorator(Abstract_StatusOfValet):
     def __init__(self, decorated_valet):
         self.decorated_valet = decorated_valet
 
-    def getValetStatus(self):
-        return self.decorated_valet.getValetStatus()
-
-    def getValetStatusEnd(self):
-        return self.decorated_valet.getValetStatusEnd()
+    def getValetCost(self):
+        return self.decorated_valet.getValetCost()
 
 
-class WaxStatus(Abstract_Valet_Decorator):
+class WaxCost(Abstract_Valet_Decorator):
 
     def __init__(self, decorated_valet):
         self.decorated_valet = decorated_valet
 
-    def getValetStatus(self):
-        return self.decorated_valet.getValetStatus() + '\nWax has now started'
-
-    def getValetStatusEnd(self):
-        return 'Wax has now Ended \n' + self.decorated_valet.getValetStatusEnd()
+    def getValetCost(self):
+        return self.decorated_valet.getValetCost() + 5
 
 
-class PolishStatus(Abstract_Valet_Decorator):
+class PolishCost(Abstract_Valet_Decorator):
 
     def __init__(self, decorated_valet):
         self.decorated_valet = decorated_valet
 
-    def getValetStatus(self):
-        return self.decorated_valet.getValetStatus() + 'Polish has now started'
+    def getValetCost(self):
+        return self.decorated_valet.getValetCost() + 12
 
-    def getValetStatus(self):
-        return self.decorated_valet.getValetStatusEnd() + 'Polish has now Ended'
+class WashCost(Abstract_Valet_Decorator):
+
+    def __init__(self, decorated_valet):
+        self.decorated_valet = decorated_valet
+
+    def getValetCost(self):
+        return self.decorated_valet.getValetCost() + 3
+
+class VacuumCost(Abstract_Valet_Decorator):
+
+    def __init__(self, decorated_valet):
+        self.decorated_valet = decorated_valet
+
+    def getValetCost(self):
+        return self.decorated_valet.getValetCost() + 4
+
+class LeatherCost(Abstract_Valet_Decorator):
+
+    def __init__(self, decorated_valet):
+        self.decorated_valet = decorated_valet
+
+    def getValetCost(self):
+        return self.decorated_valet.getValetCost() + 6
+
+class SteamCleanCost(Abstract_Valet_Decorator):
+
+    def __init__(self, decorated_valet):
+        self.decorated_valet = decorated_valet
+
+    def getValetCost(self):
+        return self.decorated_valet.getValetCost() + 4
+
+
