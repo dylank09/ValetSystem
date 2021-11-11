@@ -47,7 +47,9 @@ class BookingList(ListView):
     template_name = 'booking_list.html'
 
 
-
+# def payForBooking(request, booking):
+    
+#     return render(request, "bookingView.html", {'booking': booking})
 
 
 def bookingCreate(request):
@@ -60,9 +62,7 @@ def bookingCreate(request):
             for valet in valetSelected:
                 available_booking.append(valet)
             print(available_booking)
-            # for valetservice in booking_list:
-            #     if check_availability(valetservice, data['start_time'], data['end_time']):
-            #         available_booking.append(valetservice)
+            
             MainComposite = CompositeBaseValet()
             Composti1 = CompositeExterior()
             Composti2 = CompositeInterior()
