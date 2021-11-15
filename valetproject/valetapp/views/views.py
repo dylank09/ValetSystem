@@ -1,10 +1,10 @@
-from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib.auth import login, authenticate
 from django.shortcuts import render, redirect
 from django.http import HttpResponse, request
 
 from ..forms.signup import SignUpForm
-from ..forms.login import LoginForm
+#from ..forms.login import LoginForm
 from ..models import ChainStore
 from ..models.booking import Booking
 from ..models.valetservice import CompositeBaseValet, CompositeExterior, Wash, Wax, Polish, CompositeInterior, SteamClean, Vacuum, Leather
@@ -195,22 +195,31 @@ def selecttime(request, ):
 
 
 # @login_required
-def loginUser(request):
+# def loginUser(request):
 
-    next = request.GET.get('next')
-    form = LoginForm(request.POST or None)
-    if form.is_valid():
-        user = form.save()
-        login(request, user)
-        if next:
-            return redirect(next)
-        return redirect('/')
+#     next = request.GET.get('next')
+#     form = LoginForm(request.POST or None)
+#     if form.is_valid():
+#         user = form.save()
+#         login(request, user)
+#         if next:
+#             return redirect(next)
+#         return redirect('/')
 
-    context = {
-        'form': form,
-    }
+#     context = {
+#         'form': form,
+#     }
 
-    return render(request, "login.html", context)
+#     return render(request, "login.html", context)
+
+def loginPage(request):
+    if request.method == 'POST':
+        form = AuthenticationForm(data=request.POST)
+        if form.is_valid():
+            return redirect('../home/')
+    else:
+        form = AuthenticationForm()
+    return render(request, 'login.html', {'form':form})
 
 
 def viewBooking(request, bookingId):
