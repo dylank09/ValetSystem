@@ -1,9 +1,9 @@
 from django.db import models
 from enum import Enum
-
 from .users.customer import Customer
-from .valet import Valet
 from .subject import Subject
+from .chainstore import ChainStore
+
 
 class BookingStates(Enum):
     PENDING = 'pending'
@@ -18,6 +18,7 @@ class BookingStates(Enum):
 class Booking(models.Model, Subject):
     #bookingNumber = models.CharField(default = random_string)
     user = models.ForeignKey(Customer, on_delete=models.CASCADE)
+    store = models.ForeignKey(ChainStore, on_delete=models.CASCADE)
     start_time = models.DateTimeField()
     end_time = models.DateTimeField()
     # booking_state = models.CharField(
@@ -34,7 +35,7 @@ class Booking(models.Model, Subject):
 
     def getPrice(self): return self.price
 
-    def setPrice(self, newPrice): self.price = newPrice 
+    def setPrice(self, newPrice): self.price = newPrice
 
     def __str__(self):
         return f'{self.user} has booked {self.start_time} until {self.end_time}'

@@ -4,7 +4,7 @@ from django.shortcuts import render, redirect
 from django.http import HttpResponse, request
 
 from ..forms.signup import SignUpForm
-#from ..forms.login import LoginForm
+# from ..forms.login import LoginForm
 from ..models import ChainStore
 from ..models.booking import Booking
 from ..models.valetservice import CompositeBaseValet, CompositeExterior, Wash, Wax, Polish, CompositeInterior, SteamClean, Vacuum, Leather
@@ -13,11 +13,12 @@ from ..models.users.customer import Customer
 from ..forms.bookService import AvailabilityForm
 from ..booking_functions.availability import check_availability
 from ..Userfactory import Userfactory
-from .addOns import Concrete_Valet, WaxCost, WashCost, PolishCost ,LeatherCost, SteamCleanCost, VacuumCost
+from .addOns import Concrete_Valet, WaxCost, WashCost, PolishCost, LeatherCost, SteamCleanCost, VacuumCost
 import time
+import math
 
 
-#from django.contrib.auth.decorators import login_required
+# from django.contrib.auth.decorators import login_required
 from django.contrib.auth import (
     authenticate,
     get_user_model,
@@ -34,11 +35,6 @@ utc = pytz.UTC
 
 def index(request):
     return HttpResponse("Hello, world!")
-
-
-def chainstore_by_id(request, chainstore_id):
-    chainStore = ChainStore.objects.get(pk=chainstore_id)
-    return render(request, 'chainstore_details.html', {'chainStore': chainStore})
 
 
 class BookingList(ListView):
@@ -58,6 +54,71 @@ def payForBooking(request, bookingId):
     return render(request, "payForBooking.html", {'booking':booking, 'oldPrice': oldPrice, 'discount':discount})
 
 
+def getClosestStoreWithAvailableTime(store, long, lat, storeID, startTime, storesToExclude):
+    print("Hello")
+    print("Stores to exlucde: ", storesToExclude)
+    stores = ChainStore.objects.exclude(name=store)
+    for store2 in storesToExclude:
+        print(store2)
+        stores = stores.exclude(name=store2)
+    print("B: ", stores)
+    print(long)
+    print(lat)
+    # stores = [store.getName() for valet in valetObjects]
+    closestStore = stores[0]
+    X = closestStore.getLongitude() - long
+    Y = closestStore.getLatitude() - lat
+    closestStoreDistanceToCurrentStore = math.sqrt(
+        math.pow(X, 2) + math.pow(Y, 2))
+    print(stores)
+    # stores = stores.exclude(name=closestStore.getName())
+    print(stores)
+    # VALET_CATERGORIES = [(valet, valet.getName()) for valet in valetObjects]
+    for store in stores:
+        X = store.getLongitude() - long
+        Y = store.getLatitude() - lat
+        distanceToCurrentStore = math.sqrt(math.pow(X, 2) + math.pow(Y, 2))
+        print(distanceToCurrentStore)
+        if(distanceToCurrentStore < closestStoreDistanceToCurrentStore):
+            closestStore = store
+    print(closestStore)
+
+    storeMax = closestStore.getMaxNumberOfValetsPerHour()
+    storeID = ChainStore.objects.filter(name=closestStore.getName())[0]
+    bookings = Booking.objects.filter(store=storeID, start_time=startTime)
+    if(len(bookings) <= storeMax):
+        print("Hello")
+        print(closestStore)
+        return closestStore
+    else:
+        storesToExclude.append(closestStore)
+        return getClosestStoreWithAvailableTime(
+            store, X, Y, storeID, startTime, storesToExclude)
+
+
+def checkBookingAvailability(storeName, storeID, startTime):
+    store = ChainStore.objects.get(name=storeName)
+    storeMax = store.getMaxNumberOfValetsPerHour()
+    bookings = Booking.objects.filter(store=storeID, start_time=startTime)
+
+    print(len(bookings))
+    print(storeMax)
+    print(startTime)
+    storeLongititude = store.getLongitude()
+    storeLatitude = store.getLatitude()
+    if(len(bookings) > storeMax):
+        print("Hello")
+        storesToExclude = []
+        storesToExclude.append(store)
+        print("A: ", storesToExclude)
+        tempstore = getClosestStoreWithAvailableTime(
+            store, storeLongititude, storeLatitude, storeID, startTime, storesToExclude)
+        print(tempstore)
+        return tempstore
+    else:
+        return store
+
+
 def bookingCreate(request):
     if request.method != 'POST':
         form = AvailabilityForm()
@@ -66,7 +127,7 @@ def bookingCreate(request):
         form = AvailabilityForm(request.POST)
 
         if form.is_valid():
-            
+
             data = form.cleaned_data
             valetSelected = data['valet_services']
             available_booking = [valet for valet in valetSelected]
@@ -108,7 +169,12 @@ def bookingCreate(request):
             MainComposite.add(Composti2)
             bookingDuration = MainComposite.addDuration()
             bookingDuration = timedelta(minutes=bookingDuration)
-
+            storeName = data['stores']
+            storeID = ChainStore.objects.filter(name=data['stores'])[0]
+            store = checkBookingAvailability(
+                storeName, storeID, data['start_time'])
+            print("Temp", store)
+            storeID = ChainStore.objects.filter(name=store.getName())[0]
             print(bookingDuration)
             print(data['start_time'])
             print(data['start_time'] + bookingDuration)
@@ -119,16 +185,18 @@ def bookingCreate(request):
 
     return render(request, 'bookingservice_form.html', {'form': form})
 
-def makeBooking(request, data, available_booking, totalBookingCost, valets, bookingDuration):
+
+def makeBooking(request, data, available_booking, totalBookingCost, valets, bookingDuration, storeID):
     if len(available_booking) > 0:
         booking = Booking(
-                    user=Customer.objects.filter(user=request.user)[0],
-                    valetservice=valets,
-                    start_time=data['start_time'],
-                    end_time=data['start_time'] + bookingDuration,
-                    price=totalBookingCost
-                )
-        # print(booking)
+            user=Customer.objects.filter(user=request.user)[0],
+            valetservice=valets,
+            start_time=data['start_time'],
+            end_time=data['start_time'] + bookingDuration,
+            price=totalBookingCost,
+            store=storeID
+        )
+        print(booking)
         booking.save()
         print(booking.id)
         # render(request, 'payForBooking.html', {'bookingID': booking.id})
@@ -155,75 +223,8 @@ def register(request):
 
 
 def home(request):
-    Wax1 = Wax()
-    Wash1 = Wash()
-    Polish1 = Polish()
-
-    Vacuum1 = Vacuum()
-    SteamClean1 = SteamClean()
-    Leather1 = Leather()
-
-    MainComposite = CompositeBaseValet()
-    Composti1 = CompositeExterior()
-    Composti1.add(Wax1)
-    Composti1.add(Wash1)
-
-    Composti1.add(Polish1)
-
-    Composti2 = CompositeInterior()
-    Composti2.add(Vacuum1)
-    Composti2.add(SteamClean1)
-
-    Composti2.add(Leather1)
-    MainComposite.add(Composti1)
-    MainComposite.add(Composti2)
-    MainComposite.addDuration()
     return render(request, 'home.html')
 
-
-def selecttime(request, ):
-
-    #context = super(selecttime, self).get_context_data(**kwargs)
-    start_time = '9:00'
-    end_time = '18:00'
-    slot_time = 60
-    
-    # Start date from today to next 5 day
-    start_date = datetime.datetime.now().date()
-    end_date = datetime.datetime.now().date() + datetime.timedelta(days=5)
-
-    days = []
-    date = start_date
-    while date <= end_date:
-        hours = []
-        time = datetime.datetime.strptime(start_time, '%H:%M')
-        end = datetime.datetime.strptime(end_time, '%H:%M')
-        while time <= end:
-            hours.append(time.strftime("%H:%M"))
-            time += datetime.timedelta(minutes=slot_time)
-        date += datetime.timedelta(days=1)
-        days.append(hours)
-
-    return render(request, 'selecttime.html', {'days': days})
-
-
-# @login_required
-# def loginUser(request):
-
-#     next = request.GET.get('next')
-#     form = LoginForm(request.POST or None)
-#     if form.is_valid():
-#         user = form.save()
-#         login(request, user)
-#         if next:
-#             return redirect(next)
-#         return redirect('/')
-
-#     context = {
-#         'form': form,
-#     }
-
-#     return render(request, "login.html", context)
 
 def loginPage(request):
     if request.method == 'POST':
@@ -232,35 +233,4 @@ def loginPage(request):
             return redirect('../home/')
     else:
         form = AuthenticationForm()
-    return render(request, 'login.html', {'form':form})
-
-
-def viewBooking(request, bookingId):
-    booking = Booking.objects.get(pk=bookingId)
-    services = booking.valetservice.split(',')
-    datetimeToday = datetime.now().replace(tzinfo=utc)
-    hasBookingStarted = 'Booking has not started yet'
-    bookingObject = {
-        'booking': booking,
-        'hasBookingStarted': hasBookingStarted
-    }
-    totalBookingCost = 0
-    if booking.start_time <= datetimeToday.replace(tzinfo=utc):
-        hasBookingStarted = ""
-        baseValet = Concrete_Valet()
-        for service in services:
-            if service == 'Wax':
-                baseValet = WaxCost(baseValet)
-            if service == 'Wash':
-                baseValet = WashCost(baseValet)
-            if service == 'Polish':
-                baseValet = PolishCost(baseValet)
-            if service == 'Steam':
-                baseValet = SteamCleanCost(baseValet)
-            if service == 'Vacuum':
-                baseValet = VacuumCost(baseValet)
-            if service == 'Leather':
-                baseValet = LeatherCost(baseValet)
-        totalBookingCost = baseValet.getValetCost()
-    bookingObject['totalBookingCost'] = totalBookingCost
-    return render(request, "bookingView.html", {'booking': bookingObject})
+    return render(request, 'login.html', {'form': form})
