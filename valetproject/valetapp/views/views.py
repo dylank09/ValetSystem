@@ -4,7 +4,7 @@ from django.shortcuts import render, redirect
 from django.http import HttpResponse, request
 
 from ..forms.signup import SignUpForm
-#from ..forms.login import LoginForm
+# from ..forms.login import LoginForm
 from ..models import ChainStore
 from ..models.booking import Booking
 from ..models.valetservice import CompositeBaseValet, CompositeExterior, Wash, Wax, Polish, CompositeInterior, SteamClean, Vacuum, Leather
@@ -13,11 +13,12 @@ from ..models.users.customer import Customer
 from ..forms.bookService import AvailabilityForm
 from ..booking_functions.availability import check_availability
 from ..Userfactory import Userfactory
-from .addOns import Concrete_Valet, WaxCost, WashCost, PolishCost ,LeatherCost, SteamCleanCost, VacuumCost
+from .addOns import Concrete_Valet, WaxCost, WashCost, PolishCost, LeatherCost, SteamCleanCost, VacuumCost
 import time
+import math
 
 
-#from django.contrib.auth.decorators import login_required
+# from django.contrib.auth.decorators import login_required
 from django.contrib.auth import (
     authenticate,
     get_user_model,
@@ -48,8 +49,73 @@ class BookingList(ListView):
 
 
 # def payForBooking(request, booking):
-    
+
 #     return render(request, "bookingView.html", {'booking': booking})
+
+
+def getClosestStoreWithAvailableTime(store, long, lat, storeID, startTime, storesToExclude):
+    print("Hello")
+    print("Stores to exlucde: ", storesToExclude)
+    stores = ChainStore.objects.exclude(name=store)
+    for store2 in storesToExclude:
+        print(store2)
+        stores = stores.exclude(name=store2)
+    print("B: ", stores)
+    print(long)
+    print(lat)
+    # stores = [store.getName() for valet in valetObjects]
+    closestStore = stores[0]
+    X = closestStore.getLongitude() - long
+    Y = closestStore.getLatitude() - lat
+    closestStoreDistanceToCurrentStore = math.sqrt(
+        math.pow(X, 2) + math.pow(Y, 2))
+    print(stores)
+    # stores = stores.exclude(name=closestStore.getName())
+    print(stores)
+    # VALET_CATERGORIES = [(valet, valet.getName()) for valet in valetObjects]
+    for store in stores:
+        X = store.getLongitude() - long
+        Y = store.getLatitude() - lat
+        distanceToCurrentStore = math.sqrt(math.pow(X, 2) + math.pow(Y, 2))
+        print(distanceToCurrentStore)
+        if(distanceToCurrentStore < closestStoreDistanceToCurrentStore):
+            closestStore = store
+    print(closestStore)
+
+    storeMax = closestStore.getMaxNumberOfValetsPerHour()
+    storeID = ChainStore.objects.filter(name=closestStore.getName())[0]
+    bookings = Booking.objects.filter(store=storeID, start_time=startTime)
+    if(len(bookings) <= storeMax):
+        print("Hello")
+        print(closestStore)
+        return closestStore
+    else:
+        storesToExclude.append(closestStore)
+        return getClosestStoreWithAvailableTime(
+            store, X, Y, storeID, startTime, storesToExclude)
+
+
+def checkBookingAvailability(storeName, storeID, startTime):
+    store = ChainStore.objects.get(name=storeName)
+    storeMax = store.getMaxNumberOfValetsPerHour()
+    bookings = Booking.objects.filter(store=storeID, start_time=startTime)
+
+    print(len(bookings))
+    print(storeMax)
+    print(startTime)
+    storeLongititude = store.getLongitude()
+    storeLatitude = store.getLatitude()
+    if(len(bookings) > storeMax):
+        print("Hello")
+        storesToExclude = []
+        storesToExclude.append(store)
+        print("A: ", storesToExclude)
+        tempstore = getClosestStoreWithAvailableTime(
+            store, storeLongititude, storeLatitude, storeID, startTime, storesToExclude)
+        print(tempstore)
+        return tempstore
+    else:
+        return store
 
 
 def bookingCreate(request):
@@ -61,8 +127,7 @@ def bookingCreate(request):
             available_booking = []
             for valet in valetSelected:
                 available_booking.append(valet)
-            print(available_booking)
-            
+
             MainComposite = CompositeBaseValet()
             Composti1 = CompositeExterior()
             Composti2 = CompositeInterior()
@@ -96,16 +161,20 @@ def bookingCreate(request):
             MainComposite.add(Composti2)
             bookingDuration = MainComposite.addDuration()
             bookingDuration = timedelta(minutes=bookingDuration)
-            print(bookingDuration)
-            print(data['start_time'])
-            print(data['start_time'] + bookingDuration)
+            storeName = data['stores']
+            storeID = ChainStore.objects.filter(name=data['stores'])[0]
+            store = checkBookingAvailability(
+                storeName, storeID, data['start_time'])
+            print("Temp", store)
+            storeID = ChainStore.objects.filter(name=store.getName())[0]
             if len(available_booking) > 0:
                 booking = Booking(
                     user=Customer.objects.filter(user=request.user)[0],
                     valetservice=valets,
                     start_time=data['start_time'],
                     end_time=data['start_time'] + bookingDuration,
-                    price=totalBookingCost
+                    price=totalBookingCost,
+                    store=storeID
                 )
                 print(booking)
                 booking.save()
@@ -161,7 +230,7 @@ def home(request):
 
 def selecttime(request, ):
 
-    #context = super(selecttime, self).get_context_data(**kwargs)
+    # context = super(selecttime, self).get_context_data(**kwargs)
     start_time = '9:00'
     end_time = '18:00'
     slot_time = 60
@@ -189,7 +258,7 @@ def selecttime(request, ):
         array = [arrayOfDays[i], "-", hours]
         i = i + 1
 
-    #context['days'] = days
+    # context['days'] = days
 
     return render(request, 'selecttime.html', {'days': days})
 
@@ -219,7 +288,7 @@ def loginPage(request):
             return redirect('../home/')
     else:
         form = AuthenticationForm()
-    return render(request, 'login.html', {'form':form})
+    return render(request, 'login.html', {'form': form})
 
 
 def viewBooking(request, bookingId):
