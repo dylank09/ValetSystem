@@ -51,10 +51,11 @@ def payForBooking(request, bookingId):
     booking = Booking.objects.get(pk=bookingId)
     
     customer= Customer.objects.filter(user=request.user)[0]
-    print(booking.getPrice())
+
+    oldPrice = (booking.getPrice())
     customer.update(booking)
-    print(booking.getPrice())
-    return render(request, "bookingView.html")
+    discount = oldPrice - booking.getPrice()
+    return render(request, "payForBooking.html", {'booking':booking, 'oldPrice': oldPrice, 'discount':discount})
 
 
 def bookingCreate(request):
@@ -112,9 +113,9 @@ def bookingCreate(request):
             print(data['start_time'])
             print(data['start_time'] + bookingDuration)
 
-            makeBooking(request, data, available_booking, totalBookingCost, valets, bookingDuration)
-
-            return redirect('home')
+            return makeBooking(request, data, available_booking, totalBookingCost, valets, bookingDuration)
+            
+            # return redirect('home')
 
     return render(request, 'bookingservice_form.html', {'form': form})
 
@@ -127,8 +128,13 @@ def makeBooking(request, data, available_booking, totalBookingCost, valets, book
                     end_time=data['start_time'] + bookingDuration,
                     price=totalBookingCost
                 )
-        print(booking)
+        # print(booking)
         booking.save()
+        print(booking.id)
+        # render(request, 'payForBooking.html', {'bookingID': booking.id})
+        
+        return payForBooking(request, booking.id)
+
 
 
 def register(request):
