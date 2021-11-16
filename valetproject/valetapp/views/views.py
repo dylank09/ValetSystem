@@ -58,16 +58,20 @@ def payForBooking(request, bookingId):
 
 
 def bookingCreate(request):
-    if request.method == 'POST':
+    if request.method != 'POST':
+        form = AvailabilityForm()
+
+    else:
         form = AvailabilityForm(request.POST)
+
         if form.is_valid():
+            
             data = form.cleaned_data
             valetSelected = data['valet_services']
-            available_booking = []
-            for valet in valetSelected:
-                available_booking.append(valet)
+            available_booking = [valet for valet in valetSelected]
+
             print(available_booking)
-            
+
             MainComposite = CompositeBaseValet()
             Composti1 = CompositeExterior()
             Composti2 = CompositeInterior()
@@ -76,48 +80,55 @@ def bookingCreate(request):
             valets = ""
 
             for valet in available_booking:
-                if(valet == "Wax"):
-                    Composti1.add(Wax())
-                    baseValet = WaxCost(baseValet)
-                if(valet == "Wash"):
-                    Composti1.add(Wash())
-                    baseValet = WashCost(baseValet)
-                if(valet == "Polish"):
-                    Composti1.add(Polish())
-                    baseValet = PolishCost(baseValet)
-                if(valet == "Vacuum"):
-                    Composti2.add(Vacuum())
-                    baseValet = VacuumCost(baseValet)
-                if(valet == "Steam"):
-                    Composti2.add(SteamClean())
-                    baseValet = SteamCleanCost(baseValet)
-                if(valet == "Leather"):
+                if valet == "Leather":
                     Composti2.add(Leather())
                     baseValet = LeatherCost(baseValet)
+                elif valet == "Polish":
+                    Composti1.add(Polish())
+                    baseValet = PolishCost(baseValet)
+                elif valet == "Steam":
+                    Composti2.add(SteamClean())
+                    baseValet = SteamCleanCost(baseValet)
+                elif valet == "Vacuum":
+                    Composti2.add(Vacuum())
+                    baseValet = VacuumCost(baseValet)
+                elif valet == "Wash":
+                    Composti1.add(Wash())
+                    baseValet = WashCost(baseValet)
+                elif valet == "Wax":
+                    Composti1.add(Wax())
+                    baseValet = WaxCost(baseValet)
+
                 valets = valet+","+valets
+
             totalBookingCost = baseValet.getValetCost()
 
             MainComposite.add(Composti1)
             MainComposite.add(Composti2)
             bookingDuration = MainComposite.addDuration()
             bookingDuration = timedelta(minutes=bookingDuration)
+
             print(bookingDuration)
             print(data['start_time'])
             print(data['start_time'] + bookingDuration)
-            if len(available_booking) > 0:
-                booking = Booking(
+
+            makeBooking(request, data, available_booking, totalBookingCost, valets, bookingDuration)
+
+            return redirect('home')
+
+    return render(request, 'bookingservice_form.html', {'form': form})
+
+def makeBooking(request, data, available_booking, totalBookingCost, valets, bookingDuration):
+    if len(available_booking) > 0:
+        booking = Booking(
                     user=Customer.objects.filter(user=request.user)[0],
                     valetservice=valets,
                     start_time=data['start_time'],
                     end_time=data['start_time'] + bookingDuration,
                     price=totalBookingCost
                 )
-                print(booking)
-                booking.save()
-            return redirect('home')
-    else:
-        form = AvailabilityForm()
-    return render(request, 'bookingservice_form.html', {'form': form})
+        print(booking)
+        booking.save()
 
 
 def register(request):
@@ -170,9 +181,7 @@ def selecttime(request, ):
     start_time = '9:00'
     end_time = '18:00'
     slot_time = 60
-
-    arrayOfDays = ["monday", "tuesday", "Wednesday",
-                   "thursday", "friday", "Saturday"]
+    
     # Start date from today to next 5 day
     start_date = datetime.datetime.now().date()
     end_date = datetime.datetime.now().date() + datetime.timedelta(days=5)
@@ -188,13 +197,6 @@ def selecttime(request, ):
             time += datetime.timedelta(minutes=slot_time)
         date += datetime.timedelta(days=1)
         days.append(hours)
-
-    i = 0
-    for hours in days:
-        array = [arrayOfDays[i], "-", hours]
-        i = i + 1
-
-    #context['days'] = days
 
     return render(request, 'selecttime.html', {'days': days})
 
