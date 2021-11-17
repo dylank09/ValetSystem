@@ -10,5 +10,6 @@ urlpatterns = [
          views.payForBooking, name='payForBooking'),
     path('register/', views.register, name='register'),
     path('home/', views.home, name='home'),
-    path('login/', views.loginPage, name='loginUser')
+    path('login/', views.loginPage, name='loginUser'),
+    path('view/', views.getVisitor, name='getVisitor')
 ]

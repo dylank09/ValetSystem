@@ -1,7 +1,8 @@
 from django.db import models
+from .item import Item
 
 
-class ChainStore(models.Model):
+class ChainStore(models.Model, Item):
     name = models.CharField(max_length=100)
     longitude = models.DecimalField(max_digits=20, decimal_places=15)
     latitude = models.DecimalField(max_digits=20, decimal_places=15)
@@ -22,3 +23,6 @@ class ChainStore(models.Model):
 
     def getLatitude(self):
         return self.latitude
+    
+    def accept(self, visitor):
+        return visitor.visit(self)

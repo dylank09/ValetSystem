@@ -2,6 +2,10 @@ from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib.auth import login, authenticate
 from django.shortcuts import render, redirect
 from django.http import HttpResponse, request
+from valetapp.views.concreteVisitor import ConcreteVisitor
+
+from valetapp.views.visitor import Visitor
+from .concreteVisitor import ConcreteVisitor
 
 from ..forms.signup import SignUpForm
 # from ..forms.login import LoginForm
@@ -10,6 +14,8 @@ from ..models.booking import Booking
 from ..models.valetservice import CompositeBaseValet, CompositeExterior, Wash, Wax, Polish, CompositeInterior, SteamClean, Vacuum, Leather
 from ..models.valet import Valet
 from ..models.users.customer import Customer
+from ..models.users.membershiptype import MembershipType
+from ..models.users.staff import Staff
 from ..forms.bookService import AvailabilityForm
 from ..booking_functions.availability import check_availability
 from ..Userfactory import Userfactory
@@ -52,6 +58,32 @@ def payForBooking(request, bookingId):
     customer.update(booking)
     discount = oldPrice - booking.getPrice()
     return render(request, "payForBooking.html", {'booking':booking, 'oldPrice': oldPrice, 'discount':discount})
+
+def getVisitor(request):
+    bookings = Booking.objects.all()
+    customers = Customer.objects.all()
+    stores = ChainStore.objects.all()
+    valets = Valet.objects.all()
+    membershipTypes = MembershipType.objects.all()
+    staffs = Staff.objects.all()
+    print(customers)
+    print(bookings)
+    visitor = ConcreteVisitor()
+    sum = 0
+    for booking in bookings:
+        sum += booking.accept(visitor)
+    for customer in customers:
+        print(customer.accept(visitor))
+    for store in stores:
+        print(store.accept(visitor))
+    for valet in valets:
+        print(valet.accept(visitor))
+    for membershipType in membershipTypes:
+        print(membershipType.accept(visitor))
+    for staff in staffs:
+        print(staff.accept(visitor))
+    print(sum)
+    return render(request, "booking_list.html")
 
 
 def getClosestStoreWithAvailableTime(store, long, lat, storeID, startTime, storesToExclude):
@@ -179,7 +211,7 @@ def bookingCreate(request):
             print(data['start_time'])
             print(data['start_time'] + bookingDuration)
 
-            return makeBooking(request, data, available_booking, totalBookingCost, valets, bookingDuration)
+            return makeBooking(request, data, available_booking, totalBookingCost, valets, bookingDuration, storeID)
             
             # return redirect('home')
 
