@@ -1,23 +1,12 @@
-from django.shortcuts import render, redirect
-
+from django.shortcuts import render
 from ..models import ChainStore
 from ..models.booking import Booking
 from ..models.valetservice import CompositeBaseValet, CompositeExterior, Wash, Wax, Polish, CompositeInterior, SteamClean, Vacuum, Leather
 from ..models.users.customer import Customer
 from ..forms.bookService import AvailabilityForm
-from ..booking_functions.availability import check_availability
 from .addOns import Concrete_Valet, WaxCost, WashCost, PolishCost, LeatherCost, SteamCleanCost, VacuumCost
 import math
-
 from datetime import timedelta
-
-from django.views.generic import ListView
-
-
-class BookingList(ListView):
-    model = Booking
-    context_object_name = 'obj'
-    template_name = 'booking_list.html'
 
 
 def payForBooking(request, booking):

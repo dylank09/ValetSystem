@@ -41,6 +41,8 @@ class Booking(models.Model, Subject, Item):
 
     def getPrice(self): return self.price
 
+    def getStore(self): return self.store
+
     def setPrice(self, newPrice): self.price = newPrice
 
     def __str__(self):
