@@ -10,7 +10,6 @@ class BookingStates(Enum):
     PENDING = 'pending'
     BOOKED = 'booked'
     CANCELLED = 'cancelled'
-    END_TIME = 'endtime'
 
     @classmethod
     def tuples(cls): return tuple((state.name, state.value) for state in cls)
@@ -33,9 +32,7 @@ class Booking(models.Model, Subject, Item):
         print(self.booking_state)
 
     def cancel(self):
-        self.booking_state = BookingStates.CANCELLED
-
-    def endtime(self): self.booking_state = BookingStates.END_TIME
+        self.booking_state = 'CANCELLED'
 
     def getBookingStatus(self): return self.booking_state
 

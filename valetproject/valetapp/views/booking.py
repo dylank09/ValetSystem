@@ -182,8 +182,8 @@ def cancelBooking(request, bookingID):
 
     booking = Booking.objects.filter(id=bookingID)[0]
     print(booking.getBookingStatus())
-    # booking.cancel()
-    # booking.save()
+    booking.cancel()
+    booking.save()
     print(booking.getBookingStatus())
     return render(request, 'home.html')
 
