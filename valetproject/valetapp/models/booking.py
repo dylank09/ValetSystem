@@ -3,6 +3,7 @@ from enum import Enum
 from .users.customer import Customer
 from .subject import Subject
 from .chainstore import ChainStore
+from .item import Item
 
 
 class BookingStates(Enum):
@@ -15,7 +16,7 @@ class BookingStates(Enum):
     def tuples(cls): return tuple((state.name, state.value) for state in cls)
 
 
-class Booking(models.Model, Subject):
+class Booking(models.Model, Subject, Item):
     #bookingNumber = models.CharField(default = random_string)
     user = models.ForeignKey(Customer, on_delete=models.CASCADE)
     store = models.ForeignKey(ChainStore, on_delete=models.CASCADE)
@@ -46,3 +47,6 @@ class Booking(models.Model, Subject):
 
     def __str__(self):
         return f'{self.user} has booked {self.start_time} until {self.end_time}'
+
+    def accept(self, visitor):
+        return visitor.visit(self)

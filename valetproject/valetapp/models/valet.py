@@ -1,7 +1,8 @@
 from django.db import models
+from .item import Item
 
 
-class Valet(models.Model):
+class Valet(models.Model, Item):
     name = models.CharField(max_length=100)
 
     def __str__(self):
@@ -9,3 +10,6 @@ class Valet(models.Model):
 
     def getName(self):
         return self.name
+
+    def accept(self, visitor):
+        return visitor.visit(self)
