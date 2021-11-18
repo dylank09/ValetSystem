@@ -17,12 +17,3 @@ class SignUpForm(UserCreationForm):
         model = User
         fields = ('username', 'first_name', 'last_name',
                   'email', 'password1', 'password2')
-
-    # def clean_email(self):
-    #     email = self.cleaned_data.get('email')
-    #     email_qs = Customer.objects.filter(email=email)
-    #     if email_qs.exists():
-    #         raise forms.ValidationError(
-    #         'The email you supplied has already been used.'
-    #         )
-    #     return email

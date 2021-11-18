@@ -1,8 +1,7 @@
 from django.shortcuts import render, redirect
-from django.http import HttpResponse, request
+from django.http import request
 
 import pytz
-from django.contrib.auth import login
 
 utc = pytz.UTC
 

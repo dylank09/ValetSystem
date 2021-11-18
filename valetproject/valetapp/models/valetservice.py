@@ -3,11 +3,13 @@ from abc import ABCMeta, abstractmethod
 
 
 class BaseValet(metaclass=ABCMeta):
+
     @staticmethod
     @abstractmethod
-    def addDuration():
+    def addDuration(self):
         """add duration"""
-    def getDuration():
+
+    def get_duration(self):
         """get duration"""
 
 

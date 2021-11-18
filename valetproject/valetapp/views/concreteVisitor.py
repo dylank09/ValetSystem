@@ -14,11 +14,9 @@ class ConcreteVisitor(Visitor):
 
     def visit(self, item):
         if isinstance(item, Booking):
-            cost = item.getPrice()
-            return cost
+            return item.getPrice()
         if isinstance(item, Customer):
-            email = item.getEmail()
-            return email
+            return item.getEmail()
         if isinstance(item, ChainStore):
             name = item.getName()
             return name
@@ -26,11 +24,6 @@ class ConcreteVisitor(Visitor):
             name = item.getName()
             return name
         if isinstance(item, MembershipType):
-            membershipType = item.getColour()
-            return membershipType
+            return item.getColour()
         if isinstance(item, Staff):
-            staffEmail = item.getStaffEmail()
-            return staffEmail
-
-#membership type return color
-#staff return
+            return item.getStaffEmail()
