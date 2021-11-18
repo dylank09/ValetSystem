@@ -26,20 +26,20 @@ class Booking(models.Model, Subject, Item):
     valetservice = models.CharField(max_length=200, default="")
     price = models.FloatField(default=0.00)
 
-    def book(self): self.booking_state = BookingStates.BOOKED
-
-    def cancel(self): 
-        self.booking_state = BookingStates.CANCELLED
-        
+    def book(self):
+        self.booking_state = 'BOOKED'
         print(self.booking_state)
-        return self.booking_state
-        
+
+    def cancel(self):
+        self.booking_state = BookingStates.CANCELLED
 
     def endtime(self): self.booking_state = BookingStates.END_TIME
 
     def getBookingStatus(self): return self.booking_state
 
     def getPrice(self): return self.price
+
+    def getStore(self): return self.store
 
     def setPrice(self, new_price): self.price = new_price
 

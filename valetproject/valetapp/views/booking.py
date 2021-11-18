@@ -1,14 +1,11 @@
-from django.shortcuts import render, redirect
-
+from django.shortcuts import render
 from ..models import ChainStore
 from ..models.booking import Booking
 from ..models.valetservice import CompositeBaseValet, CompositeExterior, Wash, Wax, Polish, CompositeInterior, SteamClean, Vacuum, Leather
 from ..models.users.customer import Customer
 from ..forms.bookService import AvailabilityForm
-from ..booking_functions.availability import check_availability
 from .addOns import ConcreteValet, WaxCost, WashCost, PolishCost, LeatherCost, SteamCleanCost, VacuumCost
 import math
-
 from datetime import timedelta
 
 from django.views.generic import ListView
@@ -179,3 +176,15 @@ def cancel_booking(request, bookingid ):
     booking.save()
     
     return render(request, 'home.html')
+
+
+def viewUserBookings(request):
+    print(request.user)
+    customer = Customer.objects.filter(user=request.user)[0]
+    bookings = Booking.objects.filter(user=customer)
+    bookings = bookings.exclude(booking_state="CANCELLED")
+    bookingID = []
+    for booking in bookings:
+        bookingID.append(booking.id)
+        print(booking.getBookingStatus())
+    return render(request, 'cancel_list.html', {'bookings': bookings, 'bookingID': bookingID})

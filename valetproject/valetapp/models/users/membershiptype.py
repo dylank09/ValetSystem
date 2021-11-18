@@ -1,5 +1,6 @@
 from django.db import models
 
+
 class MembershipType(models.Model):
     colour = models.CharField(max_length=15)
 

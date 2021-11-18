@@ -1,5 +1,3 @@
-from abc import ABC
-
 from valetapp.models.users.membershiptype import MembershipType
 from valetapp.models.users.staff import Staff
 from .visitor import Visitor
@@ -9,6 +7,7 @@ from ..models.users.customer import Customer
 from ..models.valet import Valet
 from ..models.users.staff import Staff
 from ..models.users.membershiptype import MembershipType
+
 
 class ConcreteVisitor(Visitor):
 
