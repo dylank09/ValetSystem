@@ -6,7 +6,8 @@ from ..models.users.membershiptype import MembershipType
 from ..models.users.staff import Staff
 from .concreteVisitor import ConcreteVisitor
 from django.shortcuts import render
-       
+
+
 def getVisitor(request):
     bookings = Booking.objects.all()
     customers = Customer.objects.all()
@@ -14,8 +15,6 @@ def getVisitor(request):
     valets = Valet.objects.all()
     membershipTypes = MembershipType.objects.all()
     staffs = Staff.objects.all()
-    print(customers)
-    print(bookings)
     visitor = ConcreteVisitor()
     sum = 0
     for booking in bookings:

@@ -28,14 +28,12 @@ class Booking(models.Model, Subject, Item):
     # carReg = models.DecimalField(max_digits=20, decimal_places=15)
     price = models.FloatField(default=0.00)
 
-    def book(self): self.booking_state = BookingStates.BOOKED
-
-    def cancel(self): 
-        self.booking_state = BookingStates.CANCELLED
-        
+    def book(self):
+        self.booking_state = 'BOOKED'
         print(self.booking_state)
-        return self.booking_state
-        
+
+    def cancel(self):
+        self.booking_state = BookingStates.CANCELLED
 
     def endtime(self): self.booking_state = BookingStates.END_TIME
 

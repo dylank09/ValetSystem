@@ -13,6 +13,7 @@ from datetime import timedelta
 
 from django.views.generic import ListView
 
+
 class BookingList(ListView):
     model = Booking
     context_object_name = 'obj'
@@ -22,16 +23,20 @@ class BookingList(ListView):
 def payForBooking(request, booking):
     # booking = Booking.objects.get(pk=bookingId)
     # id = booking.id
-    customer= Customer.objects.filter(user=request.user)[0]
+    customer = Customer.objects.filter(user=request.user)[0]
 
     oldPrice = (booking.getPrice())
-    customer.update(booking) # 
+    customer.update(booking)
     discount = oldPrice - booking.getPrice()
+    booking.book()
+    booking.save()
 
-    return render(request, "payForBooking.html", {'booking':booking, 'oldPrice': oldPrice, 'discount':discount})
+    return render(request, "payForBooking.html", {'booking': booking, 'oldPrice': oldPrice, 'discount': discount})
+
 
 def confirmPay(request, booking):
     booking.save()
+
 
 def getClosestStoreWithAvailableTime(store, long, lat, storeID, startTime, storesToExclude):
 
@@ -60,7 +65,7 @@ def getClosestStoreWithAvailableTime(store, long, lat, storeID, startTime, store
     storeID = ChainStore.objects.filter(name=closestStore.getName())[0]
 
     bookings = Booking.objects.filter(store=storeID, start_time=startTime)
-    
+
     if (len(bookings) <= storeMax):
         return closestStore
 
@@ -79,7 +84,7 @@ def checkBookingAvailability(storeName, storeID, startTime):
     storeLongititude = store.getLongitude()
     storeLatitude = store.getLatitude()
     if (len(bookings) > storeMax):
-        
+
         storesToExclude = [store]
         tempstore = getClosestStoreWithAvailableTime(
             store, storeLongititude, storeLatitude, storeID, startTime, storesToExclude)
@@ -144,7 +149,6 @@ def bookingCreate(request):
             store = checkBookingAvailability(
                 storeName, storeID, data['start_time'])
             storeID = ChainStore.objects.filter(name=store.getName())[0]
-            
 
             return makeBooking(request, data, available_booking, totalBookingCost, valets, bookingDuration, storeID)
 
@@ -162,18 +166,35 @@ def makeBooking(request, data, available_booking, totalBookingCost, valets, book
             store=storeID
         )
         print(booking)
-        booking.book()
-        print(booking.id)
-        
-        # render(request, 'payForBooking.html', {'bookingID': booking.id})
-        return payForBooking(request, booking.id)
+        booking.save()
+        print(booking.getBookingStatus())
+        print(booking.booking_state)
+        booking.cancel()
+        print(booking.booking_state)
+        # booking.save()
 
-def cancelBooking(request, bookingID ):
+        # render(request, 'payForBooking.html', {'bookingID': booking.id})
+        return payForBooking(request, booking)
+
+
+def cancelBooking(request, bookingID):
     print(bookingID)
-    
+
     booking = Booking.objects.filter(id=bookingID)[0]
     print(booking.getBookingStatus())
-    booking.cancel()
-    booking.save()
+    # booking.cancel()
+    # booking.save()
     print(booking.getBookingStatus())
     return render(request, 'home.html')
+
+
+def viewUserBookings(request):
+    print(request.user)
+    customer = Customer.objects.filter(user=request.user)[0]
+    bookings = Booking.objects.filter(user=customer)
+    bookings = bookings.exclude(booking_state="CANCELLED")
+    bookingID = []
+    for booking in bookings:
+        bookingID.append(booking.id)
+        print(booking.getBookingStatus())
+    return render(request, 'cancel_list.html', {'bookings': bookings, 'bookingID': bookingID})
