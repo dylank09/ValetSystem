@@ -21,17 +21,24 @@ class Booking(models.Model, Subject):
     store = models.ForeignKey(ChainStore, on_delete=models.CASCADE)
     start_time = models.DateTimeField()
     end_time = models.DateTimeField()
-    # booking_state = models.CharField(
-    #     max_length=20, choices=BookingStates.tuples(), default=BookingStates.PENDING)
+    booking_state = models.CharField(
+        max_length=20, choices=BookingStates.tuples(), default=BookingStates.PENDING)
     valetservice = models.CharField(max_length=200, default="")
     # carReg = models.DecimalField(max_digits=20, decimal_places=15)
     price = models.FloatField(default=0.00)
 
     def book(self): self.booking_state = BookingStates.BOOKED
 
-    def cancel(self): self.booking_state = BookingStates.CANCELLED
+    def cancel(self): 
+        self.booking_state = BookingStates.CANCELLED
+        
+        print(self.booking_state)
+        return self.booking_state
+        
 
     def endtime(self): self.booking_state = BookingStates.END_TIME
+
+    def getBookingStatus(self): return self.booking_state
 
     def getPrice(self): return self.price
 

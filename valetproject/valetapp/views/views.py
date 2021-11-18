@@ -1,12 +1,14 @@
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib.auth import login, authenticate
+from django.db.models import query
 from django.shortcuts import render, redirect
 from django.http import HttpResponse, request
+
 
 from ..forms.signup import SignUpForm
 # from ..forms.login import LoginForm
 from ..models import ChainStore
-from ..models.booking import Booking
+from ..models.booking import Booking, BookingStates
 from ..models.valetservice import CompositeBaseValet, CompositeExterior, Wash, Wax, Polish, CompositeInterior, SteamClean, Vacuum, Leather
 from ..models.valet import Valet
 from ..models.users.customer import Customer
@@ -30,6 +32,9 @@ from django.views.generic import ListView, FormView
 from datetime import datetime, timedelta
 import pytz
 from django.contrib.auth import login
+
+
+
 utc = pytz.UTC
 
 
@@ -56,7 +61,7 @@ def payForBooking(request, bookingId):
 
 def getClosestStoreWithAvailableTime(store, long, lat, storeID, startTime, storesToExclude):
     print("Hello")
-    print("Stores to exlucde: ", storesToExclude)
+    print("Stores to exclude: ", storesToExclude)
     stores = ChainStore.objects.exclude(name=store)
     for store2 in storesToExclude:
         print(store2)
@@ -178,8 +183,10 @@ def bookingCreate(request):
             print(bookingDuration)
             print(data['start_time'])
             print(data['start_time'] + bookingDuration)
-
-            return makeBooking(request, data, available_booking, totalBookingCost, valets, bookingDuration)
+            print(request.user)
+            print(Customer.objects.filter(user=request.user))
+            print(Customer.objects.filter(user=request.user)[0])
+            return makeBooking(request, data, available_booking, totalBookingCost, valets, bookingDuration, storeID)
             
             # return redirect('home')
 
@@ -197,12 +204,34 @@ def makeBooking(request, data, available_booking, totalBookingCost, valets, book
             store=storeID
         )
         print(booking)
+        booking.book()
         booking.save()
         print(booking.id)
-        # render(request, 'payForBooking.html', {'bookingID': booking.id})
         
+        # render(request, 'payForBooking.html', {'bookingID': booking.id})
         return payForBooking(request, booking.id)
 
+def cancelBooking(request, bookingID ):
+    print(bookingID)
+    
+    booking = Booking.objects.filter(id=bookingID)[0]
+    print(booking.getBookingStatus())
+    booking.cancel()
+    booking.save()
+    print(booking.getBookingStatus())
+    return render(request, 'home.html')
+
+
+def viewUserBookings(request):
+    customer = Customer.objects.filter(user = request.user)[0]
+    print(customer)
+    bookings = Booking.objects.filter(user=customer)
+    bookings = bookings.exclude(booking_state="cancelled")
+    print(bookings)
+    bookingID = []
+    for booking in bookings:
+        bookingID.append(booking.id)
+    return render(request, 'cancel_list.html', {'bookings':bookings, 'bookingID': bookingID})
 
 
 def register(request):
