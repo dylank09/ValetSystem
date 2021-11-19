@@ -7,8 +7,6 @@ from ..Userfactory import Userfactory
 from ..forms.signup import SignUpForm
 from django.contrib.auth import authenticate, login as auth_login
 
-
-# from django.contrib.auth.decorators import login_required
 from django.contrib.auth import (
     authenticate,
     get_user_model,
@@ -16,7 +14,7 @@ from django.contrib.auth import (
     logout
 )
 
-def loginPage(request):
+def login_page(request):
     if request.method == 'POST':
         username = request.POST['username']
         password = request.POST['password']

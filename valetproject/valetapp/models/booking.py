@@ -17,7 +17,6 @@ class BookingStates(Enum):
 
 
 class Booking(models.Model, Subject, Item):
-    #bookingNumber = models.CharField(default = random_string)
     user = models.ForeignKey(Customer, on_delete=models.CASCADE)
     store = models.ForeignKey(ChainStore, on_delete=models.CASCADE)
     start_time = models.DateTimeField()
@@ -25,7 +24,6 @@ class Booking(models.Model, Subject, Item):
     booking_state = models.CharField(
         max_length=20, choices=BookingStates.tuples(), default=BookingStates.PENDING)
     valetservice = models.CharField(max_length=200, default="")
-    # carReg = models.DecimalField(max_digits=20, decimal_places=15)
     price = models.FloatField(default=0.00)
 
     def book(self):
@@ -43,7 +41,7 @@ class Booking(models.Model, Subject, Item):
 
     def getStore(self): return self.store
 
-    def setPrice(self, newPrice): self.price = newPrice
+    def setPrice(self, new_price): self.price = new_price
 
     def __str__(self):
         return f'{self.user} has booked {self.start_time} until {self.end_time}'

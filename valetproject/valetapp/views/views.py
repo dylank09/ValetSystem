@@ -1,13 +1,7 @@
 from django.shortcuts import render, redirect
-from django.contrib.auth import logout
-from django.http import HttpResponse, request
-from valetapp.views.concreteVisitor import ConcreteVisitor
-
-from valetapp.views.visitor import Visitor
-from .concreteVisitor import ConcreteVisitor
+from django.http import request
 
 import pytz
-from django.contrib.auth import login
 
 utc = pytz.UTC
 
