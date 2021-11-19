@@ -10,10 +10,12 @@ from datetime import timedelta
 
 from django.views.generic import ListView
 
+
 class BookingList(ListView):
     model = Booking
     context_object_name = 'obj'
     template_name = 'booking_list.html'
+
 
 def closest_avail_store(store, long, lat, start_time, stores_to_exclude):
 
@@ -40,13 +42,14 @@ def closest_avail_store(store, long, lat, start_time, stores_to_exclude):
     storeid = ChainStore.objects.filter(name=closest_store.getName())[0]
 
     bookings = Booking.objects.filter(store=storeid, start_time=start_time)
-    
+
     if (len(bookings) <= store_max):
         return closest_store
 
     stores_to_exclude.append(closest_store)
     return closest_avail_store(
         store, X, Y, start_time, stores_to_exclude)
+
 
 def distance_to_store(x, y):
     return math.sqrt(math.pow(x, 2) + math.pow(y, 2))
@@ -63,7 +66,7 @@ def check_booking_availability(store_name, storeid, start_time):
     store_lat = store.getLatitude()
 
     if (len(bookings) > store_max):
-        
+
         stores_to_exclude = [store]
         tempstore = closest_avail_store(
             store, store_long, store_lat, start_time, stores_to_exclude)
@@ -76,16 +79,16 @@ def init_booking_form(request):
     if request.method != 'POST':
         form = AvailabilityForm()
         return render(request, 'bookingservice_form.html', {'form': form})
-    
+
     form = AvailabilityForm(request.POST)
 
     if form.is_valid():
         data = form.cleaned_data
         return create_booking(request, data)
 
-        
+
 def create_booking(request, data):
-    
+
     available_booking = data['valet_services']
 
     base, total_booking_cost, valets = get_valet_services(available_booking)
@@ -98,11 +101,12 @@ def create_booking(request, data):
     store = check_booking_availability(
         store_name, storeid, data['start_time'])
     storeid = ChainStore.objects.filter(name=store.getName())[0]
-    
-    if len(available_booking) > 0: #precondition
+
+    if len(available_booking) > 0:  # precondition
         return make_booking(request, data, total_booking_cost, valets, booking_duration, storeid)
-    
+
     return ""
+
 
 def get_valet_services(available_booking):
 
@@ -141,50 +145,60 @@ def get_valet_services(available_booking):
 
     return base, total_booking_cost, valets
 
+
 def make_booking(request, data, total_booking_cost, valets, booking_duration, storeid):
-    
+    customer = Customer.objects.filter(user=request.user)[0]
     booking = Booking(
-        user=Customer.objects.filter(user=request.user)[0],
+        user=customer,
         valetservice=valets,
         start_time=data['start_time'],
         end_time=data['start_time'] + booking_duration,
         price=total_booking_cost,
         store=storeid
     )
-    
+
     booking.book()
-    
+    check_for_free_8th_booking(customer, booking)
     return pay_for_booking(request, booking)
 
+
 def pay_for_booking(request, booking):
-    
-    customer= Customer.objects.filter(user=request.user)[0]
+
+    customer = Customer.objects.filter(user=request.user)[0]
 
     old_price = (booking.getPrice())
-    customer.update(booking) 
+    customer.update(booking)
     discount = old_price - booking.getPrice()
+    return render(request, "payForBooking.html", {'booking': booking, 'oldPrice': old_price, 'discount': discount})
 
-    return render(request, "payForBooking.html", {'booking':booking, 'oldPrice': old_price, 'discount':discount})
+
+def check_for_free_8th_booking(customer, booking):
+    bookings = Booking.objects.filter(user=customer)
+    number_of_bookings = len(bookings) % 1
+    if number_of_bookings == 0:
+        booking.setPrice(0)
+    else:
+        pass
+
 
 def confirm_pay(request, booking):
     booking.save()
 
-def cancel_booking(request, bookingid ):
+
+def cancel_booking(request, bookingid):
     booking = Booking.objects.filter(id=bookingid)[0]
-    
+
     booking.cancel()
     booking.save()
-    
+
     return render(request, 'home.html')
 
 
 def viewUserBookings(request):
-    print(request.user)
     customer = Customer.objects.filter(user=request.user)[0]
     bookings = Booking.objects.filter(user=customer)
     bookings = bookings.exclude(booking_state="CANCELLED")
     bookingID = []
     for booking in bookings:
         bookingID.append(booking.id)
-        print(booking.getBookingStatus())
     return render(request, 'cancel_list.html', {'bookings': bookings, 'bookingID': bookingID})
