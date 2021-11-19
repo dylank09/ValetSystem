@@ -1,5 +1,10 @@
 from django.shortcuts import render, redirect
+from django.contrib.auth import logout
 from django.http import HttpResponse, request
+from valetapp.views.concreteVisitor import ConcreteVisitor
+
+from valetapp.views.visitor import Visitor
+from .concreteVisitor import ConcreteVisitor
 
 import pytz
 from django.contrib.auth import login
