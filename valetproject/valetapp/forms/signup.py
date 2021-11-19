@@ -1,5 +1,7 @@
 from django import forms
 from django.forms.widgets import EmailInput, PasswordInput
+
+from valetapp.models.users.membershiptype import MembershipType
 from ..models.users.customer import Customer
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
@@ -12,6 +14,12 @@ class SignUpForm(UserCreationForm):
         max_length=30, required=False, help_text='Optional.')
     email = forms.EmailField(
         max_length=254, help_text='Required. Inform a valid email address.')
+
+    membership_types = MembershipType.objects.all()
+    colours = [(colour, colour.get_colour()) for colour in membership_types]
+    colours = tuple(colours)
+    colours = forms.ChoiceField(
+        choices=colours, required=True)
 
     class Meta:
         model = User

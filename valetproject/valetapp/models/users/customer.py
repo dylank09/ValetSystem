@@ -27,5 +27,10 @@ class Customer(models.Model, Observer, Item):
     def getEmail(self):
         return self.user.email
     
+    def set_colour(self, membershipType):
+        self.membershipType = membershipType
+
     def accept(self, visitor):
         return visitor.visit(self)
+
+    

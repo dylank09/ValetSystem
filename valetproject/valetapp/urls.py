@@ -16,6 +16,6 @@ urlpatterns = [
     path('register/', auth.register, name='register'),
     path('home/', views.home, name='home'),
     path('view/', exportToCSV.getVisitor, name='getVisitor'),
-    path('login/', auth.loginPage, name='loginUser'),
+    path('login/', auth.login_page, name='loginUser'),
     path('logout/', auth.user_logout, name = 'logout'),
 ]

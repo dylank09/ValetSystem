@@ -3,6 +3,8 @@ from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib.auth import login, authenticate
 from django.shortcuts import render, redirect
 from django.http import HttpResponse, request
+
+from valetapp.models.users.membershiptype import MembershipType
 from ..Userfactory import Userfactory
 from ..forms.signup import SignUpForm
 from django.contrib.auth import authenticate, login as auth_login
