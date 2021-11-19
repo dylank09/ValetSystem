@@ -13,7 +13,9 @@ class Customer(models.Model, Observer, Item):
         MembershipType, on_delete=models.RESTRICT, null=True)
 
     def update(self, subject):
-        if subject.getPrice() > 0:
+
+
+        if subject.getPrice() > 0 and self.membershipType != None :
 
             if self.membershipType.colour == "gold":
                 subject.setPrice(subject.getPrice()*0.7)

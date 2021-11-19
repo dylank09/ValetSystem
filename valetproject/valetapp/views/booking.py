@@ -174,12 +174,10 @@ def pay_for_booking(request, booking):
 
 def check_for_free_8th_booking(customer, booking):
     bookings = Booking.objects.filter(user=customer)
-    number_of_bookings = len(bookings) % 1
+    number_of_bookings = len(bookings) % 8
     if number_of_bookings == 0:
         booking.setPrice(0)
-    else:
-        pass
-
+        
 
 def confirm_pay(request, booking):
     booking.save()
