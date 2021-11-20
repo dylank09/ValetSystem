@@ -15,3 +15,4 @@ class Staff(models.Model):
 
     def accept(self, visitor):
         return visitor.visit(self)
+        

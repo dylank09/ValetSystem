@@ -10,3 +10,4 @@ class Observer():
     @abstractmethod
     def update(self, subject):
         pass
+    

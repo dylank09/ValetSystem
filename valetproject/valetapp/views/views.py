@@ -2,7 +2,7 @@ from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib.auth import login, authenticate
 from django.db.models import query
 from django.shortcuts import render, redirect
-from django.http import HttpResponse, request
+from django.http import request
 
 
 from ..forms.signup import SignUpForm
@@ -31,7 +31,6 @@ from django.contrib.auth import (
 from django.views.generic import ListView, FormView
 from datetime import datetime, timedelta
 import pytz
-from django.contrib.auth import login
 
 
 

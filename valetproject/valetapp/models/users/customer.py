@@ -13,7 +13,9 @@ class Customer(models.Model, Observer, Item):
         MembershipType, on_delete=models.RESTRICT, null=True)
 
     def update(self, subject):
-        if subject.getPrice() > 0:
+
+
+        if subject.getPrice() > 0 and self.membershipType != None :
 
             if self.membershipType.colour == "gold":
                 subject.setPrice(subject.getPrice()*0.7)
@@ -25,5 +27,10 @@ class Customer(models.Model, Observer, Item):
     def getEmail(self):
         return self.user.email
     
+    def set_colour(self, membershipType):
+        self.membershipType = membershipType
+
     def accept(self, visitor):
         return visitor.visit(self)
+
+    

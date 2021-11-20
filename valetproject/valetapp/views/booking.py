@@ -4,195 +4,209 @@ from ..models.booking import Booking
 from ..models.valetservice import CompositeBaseValet, CompositeExterior, Wash, Wax, Polish, CompositeInterior, SteamClean, Vacuum, Leather
 from ..models.users.customer import Customer
 from ..forms.bookService import AvailabilityForm
-from .addOns import Concrete_Valet, WaxCost, WashCost, PolishCost, LeatherCost, SteamCleanCost, VacuumCost
+from .addOns import ConcreteValet, WaxCost, WashCost, PolishCost, LeatherCost, SteamCleanCost, VacuumCost
 import math
 from datetime import datetime, timedelta
 import pytz
 
 utc=pytz.UTC
 
-
-def payForBooking(request, booking):
-    # booking = Booking.objects.get(pk=bookingId)
-    # id = booking.id
-    customer = Customer.objects.filter(user=request.user)[0]
-
-    oldPrice = (booking.getPrice())
-    customer.update(booking)
-    discount = oldPrice - booking.getPrice()
-    booking.book()
-    booking.save()
-
-    return render(request, "payForBooking.html", {'booking': booking, 'oldPrice': oldPrice, 'discount': discount})
+from django.views.generic import ListView
 
 
-def confirmPay(request, booking):
-    booking.save()
+class BookingList(ListView):
+    model = Booking
+    context_object_name = 'obj'
+    template_name = 'booking_list.html'
 
 
-def getClosestStoreWithAvailableTime(store, long, lat, storeID, startTime, storesToExclude):
+def closest_avail_store(store, long, lat, start_time, stores_to_exclude):
 
     stores = ChainStore.objects.exclude(name=store)
-    for store2 in storesToExclude:
-
+    for store2 in stores_to_exclude:
         stores = stores.exclude(name=store2)
 
-    closestStore = stores[0]
+    closest_store = stores[0]
 
-    X = closestStore.getLongitude() - long
-    Y = closestStore.getLatitude() - lat
+    X = closest_store.getLongitude() - long
+    Y = closest_store.getLatitude() - lat
 
-    closestStoreDistanceToCurrentStore = math.sqrt(
-        math.pow(X, 2) + math.pow(Y, 2))
+    closest_store_distance = distance_to_store(X, Y)
 
     for store in stores:
         X = store.getLongitude() - long
         Y = store.getLatitude() - lat
-        distanceToCurrentStore = math.sqrt(math.pow(X, 2) + math.pow(Y, 2))
+        distance_to_current = distance_to_store(X, Y)
 
-        if(distanceToCurrentStore < closestStoreDistanceToCurrentStore):
-            closestStore = store
+        if(distance_to_current < closest_store_distance):
+            closest_store = store
 
-    storeMax = closestStore.getMaxNumberOfValetsPerHour()
-    storeID = ChainStore.objects.filter(name=closestStore.getName())[0]
+    store_max = closest_store.getMaxNumberOfValetsPerHour()
+    storeid = ChainStore.objects.filter(name=closest_store.getName())[0]
 
-    bookings = Booking.objects.filter(store=storeID, start_time=startTime)
+    bookings = Booking.objects.filter(store=storeid, start_time=start_time)
 
-    if (len(bookings) <= storeMax):
-        return closestStore
+    if (len(bookings) <= store_max):
+        return closest_store
 
-    storesToExclude.append(closestStore)
-    return getClosestStoreWithAvailableTime(
-        store, X, Y, storeID, startTime, storesToExclude)
+    stores_to_exclude.append(closest_store)
+    return closest_avail_store(
+        store, X, Y, start_time, stores_to_exclude)
 
 
-def checkBookingAvailability(storeName, storeID, startTime):
+def distance_to_store(x, y):
+    return math.sqrt(math.pow(x, 2) + math.pow(y, 2))
 
-    store = ChainStore.objects.get(name=storeName)
-    storeMax = store.getMaxNumberOfValetsPerHour()
 
-    bookings = Booking.objects.filter(store=storeID, start_time=startTime)
+def check_booking_availability(store_name, storeid, start_time):
 
-    storeLongititude = store.getLongitude()
-    storeLatitude = store.getLatitude()
-    if (len(bookings) > storeMax):
+    store = ChainStore.objects.get(name=store_name)
+    store_max = store.getMaxNumberOfValetsPerHour()
 
-        storesToExclude = [store]
-        tempstore = getClosestStoreWithAvailableTime(
-            store, storeLongititude, storeLatitude, storeID, startTime, storesToExclude)
+    bookings = Booking.objects.filter(store=storeid, start_time=start_time)
+
+    store_long = store.getLongitude()
+    store_lat = store.getLatitude()
+
+    if (len(bookings) > store_max):
+
+        stores_to_exclude = [store]
+        tempstore = closest_avail_store(
+            store, store_long, store_lat, start_time, stores_to_exclude)
         return tempstore
     else:
         return store
 
 
-def bookingCreate(request):
+def init_booking_form(request):
     if request.method != 'POST':
         form = AvailabilityForm()
-    else:
-        form = AvailabilityForm(request.POST)
+        return render(request, 'bookingservice_form.html', {'form': form})
 
-        if form.is_valid():
+    form = AvailabilityForm(request.POST)
 
-            data = form.cleaned_data
-            valetSelected = data['valet_services']
-
-            available_booking = [valet for valet in valetSelected]
-
-            MainComposite = CompositeBaseValet()
-            Composti1 = CompositeExterior()
-            Composti2 = CompositeInterior()
-            baseValet = Concrete_Valet()
-
-            totalBookingCost = 0
-            valets = ""
-
-            for valet in available_booking:
-                if valet == "Leather":
-                    Composti2.add(Leather())
-                    baseValet = LeatherCost(baseValet)
-                elif valet == "Polish":
-                    Composti1.add(Polish())
-                    baseValet = PolishCost(baseValet)
-                elif valet == "Steam":
-                    Composti2.add(SteamClean())
-                    baseValet = SteamCleanCost(baseValet)
-                elif valet == "Vacuum":
-                    Composti2.add(Vacuum())
-                    baseValet = VacuumCost(baseValet)
-                elif valet == "Wash":
-                    Composti1.add(Wash())
-                    baseValet = WashCost(baseValet)
-                elif valet == "Wax":
-                    Composti1.add(Wax())
-                    baseValet = WaxCost(baseValet)
-
-                valets = valet+","+valets
-
-            totalBookingCost = baseValet.getValetCost()
-
-            MainComposite.add(Composti1)
-            MainComposite.add(Composti2)
-
-            bookingDuration = MainComposite.addDuration()
-            bookingDuration = timedelta(minutes=bookingDuration)
-
-            storeName = data['stores']
-            storeID = ChainStore.objects.filter(name=data['stores'])[0]
-            store = checkBookingAvailability(
-                storeName, storeID, data['start_time'])
-            storeID = ChainStore.objects.filter(name=store.getName())[0]
-
-            return makeBooking(request, data, available_booking, totalBookingCost, valets, bookingDuration, storeID)
-
-    return render(request, 'bookingservice_form.html', {'form': form})
+    if form.is_valid():
+        data = form.cleaned_data
+        return create_booking(request, data)
 
 
-def makeBooking(request, data, available_booking, totalBookingCost, valets, bookingDuration, storeID):
-    if len(available_booking) > 0:
-        booking = Booking(
-            user=Customer.objects.filter(user=request.user)[0],
-            valetservice=valets,
-            start_time=data['start_time'],
-            end_time=data['start_time'] + bookingDuration,
-            price=totalBookingCost,
-            store=storeID
-        )
-        print(booking)
-        booking.save()
-        print(booking.getBookingStatus())
-        print(booking.booking_state)
-        booking.cancel()
-        print(booking.booking_state)
-        # booking.save()
+def create_booking(request, data):
 
-        # render(request, 'payForBooking.html', {'bookingID': booking.id})
-        return payForBooking(request, booking)
+    available_booking = data['valet_services']
+
+    base, total_booking_cost, valets = get_valet_services(available_booking)
+
+    booking_duration = base.addDuration()
+    booking_duration = timedelta(minutes=booking_duration)
+
+    store_name = data['stores']
+    storeid = ChainStore.objects.filter(name=data['stores'])[0]
+    store = check_booking_availability(
+        store_name, storeid, data['start_time'])
+    storeid = ChainStore.objects.filter(name=store.getName())[0]
+
+    if len(available_booking) > 0:  # precondition
+        return make_booking(request, data, total_booking_cost, valets, booking_duration, storeid)
+
+    return ""
 
 
-def cancelBooking(request, bookingID):
-    print(bookingID)
+def get_valet_services(available_booking):
 
-    booking = Booking.objects.filter(id=bookingID)[0]
-    print(booking.getBookingStatus())
+    base = CompositeBaseValet()
+    ext_composite = CompositeExterior()
+    int_composite = CompositeInterior()
+    valet = ConcreteValet()
+    valets = ""
+
+    for v in available_booking:
+        if v == "Leather":
+            int_composite.add(Leather())
+            valet = LeatherCost(valet)
+        elif v == "Polish":
+            ext_composite.add(Polish())
+            valet = PolishCost(valet)
+        elif v == "Steam":
+            int_composite.add(SteamClean())
+            valet = SteamCleanCost(valet)
+        elif v == "Vacuum":
+            int_composite.add(Vacuum())
+            valet = VacuumCost(valet)
+        elif v == "Wash":
+            ext_composite.add(Wash())
+            valet = WashCost(valet)
+        elif v == "Wax":
+            ext_composite.add(Wax())
+            valet = WaxCost(valet)
+
+        valets = v+","+valets
+
+    total_booking_cost = valet.get_valet_cost()
+
+    base.add(ext_composite)
+    base.add(int_composite)
+
+    return base, total_booking_cost, valets
+
+
+def make_booking(request, data, total_booking_cost, valets, booking_duration, storeid):
+    customer = Customer.objects.filter(user=request.user)[0]
+    booking = Booking(
+        user=customer,
+        valetservice=valets,
+        start_time=data['start_time'],
+        end_time=data['start_time'] + booking_duration,
+        price=total_booking_cost,
+        store=storeid
+    )
+
+    booking.save()
+    check_for_free_8th_booking(customer, booking)
+    return pay_for_booking(request, booking)
+
+
+def pay_for_booking(request, booking):
+
+    customer = Customer.objects.filter(user=request.user)[0]
+
+    old_price = (booking.getPrice())
+    customer.update(booking)
+    discount = old_price - booking.getPrice()
+    return render(request, "payForBooking.html", {'booking': booking, 'oldPrice': old_price, 'discount': discount})
+
+
+def check_for_free_8th_booking(customer, booking):
+    bookings = Booking.objects.filter(user=customer)
+    number_of_bookings = len(bookings) % 8
+    if number_of_bookings == 0:
+        booking.setPrice(0)
+        
+
+def confirm_pay(request, bookingid):
+    booking = Booking.objects.filter(id=bookingid)[0]
+    booking.book()
+    booking.save()
+    
+    return render(request, 'home.html')
+
+
+def cancel_booking(request, bookingid):
+    booking = Booking.objects.filter(id=bookingid)[0]
     now = datetime.now()
-
     if utc.localize(now-timedelta(hours=24)) <= booking.getStarttime() <=  utc.localize(now+timedelta(hours=24)):
         print('error cannot cancel 24 hours before')
     else:
         booking.cancel()
         booking.save()
 
-    print(booking.getBookingStatus())
-    return render(request, 'home.html')
+    print(booking.get_booking_status())
 
 
-def viewUserBookings(request):
-    print(request.user)
+def view_user_bookings(request):
     customer = Customer.objects.filter(user=request.user)[0]
     bookings = Booking.objects.filter(user=customer)
     bookings = bookings.exclude(booking_state="CANCELLED")
     bookingID = []
     for booking in bookings:
         bookingID.append(booking.id)
-        print(booking.getBookingStatus())
     return render(request, 'cancel_list.html', {'bookings': bookings, 'bookingID': bookingID})
