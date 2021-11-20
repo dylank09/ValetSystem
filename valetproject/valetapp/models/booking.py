@@ -7,9 +7,9 @@ from .item import Item
 
 
 class BookingStates(Enum):
-    PENDING = 'pending'
-    BOOKED = 'booked'
-    CANCELLED = 'cancelled'
+    PENDING = 'pending' # when a booking is made but not paid for
+    BOOKED = 'booked' # when booking is paid for
+    CANCELLED = 'cancelled' # when booking is cancelled
     END_TIME = 'endtime'
 
     @classmethod
@@ -26,12 +26,14 @@ class Booking(models.Model, Subject, Item):
     valetservice = models.CharField(max_length=200, default="")
     price = models.FloatField(default=0.00)
 
+    def pending(self):
+        self.booking_state = 'PENDING'
+
     def book(self):
         self.booking_state = 'BOOKED'
-        print(self.booking_state)
 
     def cancel(self):
-        self.booking_state = BookingStates.CANCELLED
+        self.booking_state = 'CANCELLED'
 
     def endtime(self): self.booking_state = BookingStates.END_TIME
 

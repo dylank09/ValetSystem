@@ -157,7 +157,7 @@ def make_booking(request, data, total_booking_cost, valets, booking_duration, st
         store=storeid
     )
 
-    booking.book()
+    booking.save()
     check_for_free_8th_booking(customer, booking)
     return pay_for_booking(request, booking)
 
@@ -179,20 +179,23 @@ def check_for_free_8th_booking(customer, booking):
         booking.setPrice(0)
         
 
-def confirm_pay(request, booking):
+def confirm_pay(request, bookingid):
+    booking = Booking.objects.filter(id=bookingid)[0]
+    booking.book()
     booking.save()
+    
+    return render(request, 'home.html')
 
 
 def cancel_booking(request, bookingid):
     booking = Booking.objects.filter(id=bookingid)[0]
-
     booking.cancel()
     booking.save()
 
     return render(request, 'home.html')
 
 
-def viewUserBookings(request):
+def view_user_bookings(request):
     customer = Customer.objects.filter(user=request.user)[0]
     bookings = Booking.objects.filter(user=customer)
     bookings = bookings.exclude(booking_state="CANCELLED")
