@@ -12,7 +12,7 @@ urlpatterns = [
     path('payForBooking/<int:bookingId>',
          booking.pay_for_booking, name='payForBooking'),
     path('cancel_list/', booking.view_user_bookings, name='viewUsersBookings'),
-    path('cancelBooking/<int:bookingID>', booking.cancel_booking, name='cancelBooking'),
+    path('cancelBooking/<int:bookingid>', booking.cancel_booking, name='cancelBooking'),
     path('confirmBooking/<int:bookingid>', booking.confirm_pay, name='confirmPay'),
     path('register/', auth.register, name='register'),
     path('home/', views.home, name='home'),

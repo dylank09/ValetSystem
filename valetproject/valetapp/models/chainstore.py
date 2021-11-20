@@ -12,16 +12,16 @@ class ChainStore(models.Model, Item):
     def __str__(self):
         return self.name
 
-    def getName(self):
+    def get_name(self):
         return self.name
 
-    def getMaxNumberOfValetsPerHour(self):
+    def get_max_valets_per_hour(self):
         return self.maxNumberOfValetsPerHour
 
-    def getLongitude(self):
+    def get_longitude(self):
         return self.longitude
 
-    def getLatitude(self):
+    def get_latitude(self):
         return self.latitude
     
     def accept(self, visitor):

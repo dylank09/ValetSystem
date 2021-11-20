@@ -6,7 +6,7 @@ class BaseValet(metaclass=ABCMeta):
 
     @staticmethod
     @abstractmethod
-    def addDuration(self):
+    def add_duration(self):
         """add duration"""
 
     def get_duration(self):
@@ -22,14 +22,14 @@ class CompositeBaseValet(BaseValet):
     def add(self, valet):
         self.childValet.append(valet)
 
-    def addDuration(self):
+    def add_duration(self):
         for g in self.childValet:
             for h in g.childValet:
                 self.duration += h.addDuration()
         print(self.duration)
         return self.duration
 
-    def getDuration(self):
+    def get_duration(self):
         return self.duration
 
 

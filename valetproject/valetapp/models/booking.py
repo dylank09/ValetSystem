@@ -37,13 +37,13 @@ class Booking(models.Model, Subject, Item):
 
     def endtime(self): self.booking_state = BookingStates.END_TIME
 
-    def getBookingStatus(self): return self.booking_state
+    def get_booking_status(self): return self.booking_state
 
-    def getPrice(self): return self.price
+    def get_price(self): return self.price
 
-    def getStore(self): return self.store
+    def get_store(self): return self.store
 
-    def setPrice(self, new_price): self.price = new_price
+    def set_price(self, new_price): self.price = new_price
 
     def __str__(self):
         return f'{self.user} has booked {self.start_time} until {self.end_time}'

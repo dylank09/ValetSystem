@@ -8,7 +8,7 @@ class Valet(models.Model, Item):
     def __str__(self):
         return self.name
 
-    def getName(self):
+    def get_name(self):
         return self.name
 
     def accept(self, visitor):

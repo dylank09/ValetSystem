@@ -1,6 +1,5 @@
 from django.db import models
 from django.contrib.auth.models import User
-from django.dispatch import receiver
 import uuid
 
 
@@ -10,7 +9,7 @@ class Staff(models.Model):
     staffId = models.UUIDField(
         max_length=100, blank=True, unique=True, default=uuid.uuid4)
 
-    def getStaffEmail(self):
+    def get_staff_email(self):
         return self.user.email
 
     def accept(self, visitor):
