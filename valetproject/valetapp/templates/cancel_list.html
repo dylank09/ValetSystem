@@ -17,9 +17,9 @@
     <h1>List of bookings in the database</h1>
     <ul>
     {% for x in bookings|safeseq %}
-    <li style = "position: relative; top: 40%; outline: 2px solid brown;">{{ x }}</li>
-    {% for y in bookingID|safeseq   %}    
+    <li style = "position: relative; top: 40%; outline: 2px solid black;">{{ x }}</li>
     {% endfor %}
+    {% for y in bookingID|safeseq   %}  
     <br>
     <a href="../cancelBooking/{{y}}" style = "position: relative; left: 5% ;" >
         <button style = "color: brown;">Cancel Booking</button>

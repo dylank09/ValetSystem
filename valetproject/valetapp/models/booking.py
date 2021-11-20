@@ -40,7 +40,10 @@ class Booking(models.Model, Subject, Item):
 
     def getStore(self): return self.store
 
+    def getStarttime(self): return self.start_time
+
     def setPrice(self, newPrice): self.price = newPrice
+
 
     def __str__(self):
         return f'{self.user} has booked {self.start_time} until {self.end_time}'

@@ -6,7 +6,10 @@ from ..models.users.customer import Customer
 from ..forms.bookService import AvailabilityForm
 from .addOns import Concrete_Valet, WaxCost, WashCost, PolishCost, LeatherCost, SteamCleanCost, VacuumCost
 import math
-from datetime import timedelta
+from datetime import datetime, timedelta
+import pytz
+
+utc=pytz.UTC
 
 
 def payForBooking(request, booking):
@@ -171,8 +174,14 @@ def cancelBooking(request, bookingID):
 
     booking = Booking.objects.filter(id=bookingID)[0]
     print(booking.getBookingStatus())
-    booking.cancel()
-    booking.save()
+    now = datetime.now()
+
+    if utc.localize(now-timedelta(hours=24)) <= booking.getStarttime() <=  utc.localize(now+timedelta(hours=24)):
+        print('error cannot cancel 24 hours before')
+    else:
+        booking.cancel()
+        booking.save()
+
     print(booking.getBookingStatus())
     return render(request, 'home.html')
 
