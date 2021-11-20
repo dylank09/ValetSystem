@@ -10,7 +10,6 @@ class BookingStates(Enum):
     PENDING = 'pending' # when a booking is made but not paid for
     BOOKED = 'booked' # when booking is paid for
     CANCELLED = 'cancelled' # when booking is cancelled
-    END_TIME = 'endtime'
 
     @classmethod
     def tuples(cls): return tuple((state.name, state.value) for state in cls)
@@ -42,6 +41,8 @@ class Booking(models.Model, Subject, Item):
     def get_price(self): return self.price
 
     def get_store(self): return self.store
+
+    def get_start_time(self): return self.start_time
 
     def set_price(self, new_price): self.price = new_price
 

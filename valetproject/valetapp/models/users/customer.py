@@ -15,14 +15,14 @@ class Customer(models.Model, Observer, Item):
     def update(self, subject):
 
 
-        if subject.getPrice() > 0 and self.membershipType != None :
+        if subject.get_price() > 0 and self.membershipType != None :
 
             if self.membershipType.colour == "gold":
-                subject.setPrice(subject.getPrice()*0.7)
+                subject.set_price(subject.get_price()*0.7)
             elif self.membershipType.colour == "silver":
-                subject.setPrice(subject.getPrice()*0.8)
+                subject.set_price(subject.get_price()*0.8)
             elif self.membershipType.colour == "bronze":
-                subject.setPrice(subject.getPrice()*0.9)
+                subject.set_price(subject.get_price()*0.9)
     
     def getEmail(self):
         return self.user.email

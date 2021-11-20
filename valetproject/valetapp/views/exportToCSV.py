@@ -58,6 +58,6 @@ def get_money_made_by_each_store(bookings, stores):
         store_total = 0
         for booking in bookings:
             if(booking.getStore() == store):
-                store_total += booking.getPrice()
-        money_made_by_store.append((store.getName(), store_total))
+                store_total += booking.get_price()
+        money_made_by_store.append((store.get_name(), store_total))
     return money_made_by_store

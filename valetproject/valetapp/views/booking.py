@@ -6,7 +6,10 @@ from ..models.users.customer import Customer
 from ..forms.bookService import AvailabilityForm
 from .addOns import ConcreteValet, WaxCost, WashCost, PolishCost, LeatherCost, SteamCleanCost, VacuumCost
 import math
-from datetime import timedelta
+from datetime import datetime, timedelta
+import pytz
+
+utc=pytz.UTC
 
 from django.views.generic import ListView
 
@@ -25,21 +28,21 @@ def closest_avail_store(store, long, lat, start_time, stores_to_exclude):
 
     closest_store = stores[0]
 
-    X = closest_store.getLongitude() - long
-    Y = closest_store.getLatitude() - lat
+    X = closest_store.get_longitude() - long
+    Y = closest_store.get_latitude() - lat
 
     closest_store_distance = distance_to_store(X, Y)
 
     for store in stores:
-        X = store.getLongitude() - long
-        Y = store.getLatitude() - lat
+        X = store.get_longitude() - long
+        Y = store.get_latitude() - lat
         distance_to_current = distance_to_store(X, Y)
 
         if(distance_to_current < closest_store_distance):
             closest_store = store
 
-    store_max = closest_store.getMaxNumberOfValetsPerHour()
-    storeid = ChainStore.objects.filter(name=closest_store.getName())[0]
+    store_max = closest_store.get_max_valets_per_hour()
+    storeid = ChainStore.objects.filter(name=closest_store.get_name())[0]
 
     bookings = Booking.objects.filter(store=storeid, start_time=start_time)
 
@@ -58,12 +61,12 @@ def distance_to_store(x, y):
 def check_booking_availability(store_name, storeid, start_time):
 
     store = ChainStore.objects.get(name=store_name)
-    store_max = store.getMaxNumberOfValetsPerHour()
+    store_max = store.get_max_valets_per_hour()
 
     bookings = Booking.objects.filter(store=storeid, start_time=start_time)
 
-    store_long = store.getLongitude()
-    store_lat = store.getLatitude()
+    store_long = store.get_longitude()
+    store_lat = store.get_latitude()
 
     if (len(bookings) > store_max):
 
@@ -93,14 +96,14 @@ def create_booking(request, data):
 
     base, total_booking_cost, valets = get_valet_services(available_booking)
 
-    booking_duration = base.addDuration()
+    booking_duration = base.add_duration()
     booking_duration = timedelta(minutes=booking_duration)
 
     store_name = data['stores']
     storeid = ChainStore.objects.filter(name=data['stores'])[0]
     store = check_booking_availability(
         store_name, storeid, data['start_time'])
-    storeid = ChainStore.objects.filter(name=store.getName())[0]
+    storeid = ChainStore.objects.filter(name=store.get_name())[0]
 
     if len(available_booking) > 0:  # precondition
         return make_booking(request, data, total_booking_cost, valets, booking_duration, storeid)
@@ -166,9 +169,9 @@ def pay_for_booking(request, booking):
 
     customer = Customer.objects.filter(user=request.user)[0]
 
-    old_price = (booking.getPrice())
+    old_price = (booking.get_price())
     customer.update(booking)
-    discount = old_price - booking.getPrice()
+    discount = old_price - booking.get_price()
     return render(request, "payForBooking.html", {'booking': booking, 'oldPrice': old_price, 'discount': discount})
 
 
@@ -176,7 +179,7 @@ def check_for_free_8th_booking(customer, booking):
     bookings = Booking.objects.filter(user=customer)
     number_of_bookings = len(bookings) % 8
     if number_of_bookings == 0:
-        booking.setPrice(0)
+        booking.set_price(0)
         
 
 def confirm_pay(request, bookingid):
@@ -189,9 +192,14 @@ def confirm_pay(request, bookingid):
 
 def cancel_booking(request, bookingid):
     booking = Booking.objects.filter(id=bookingid)[0]
-    booking.cancel()
-    booking.save()
+    now = datetime.now()
+    if utc.localize(now-timedelta(hours=24)) <= booking.get_start_time() <=  utc.localize(now+timedelta(hours=24)):
+        print('error cannot cancel 24 hours before')
+    else:
+        booking.cancel()
+        booking.save()
 
+    print(booking.get_booking_status())
     return render(request, 'home.html')
 
 
