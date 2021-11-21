@@ -23,6 +23,6 @@ class ConcreteVisitor(Visitor):
             name = item.get_name()
             return name
         if isinstance(item, MembershipType):
-            return item.getColour()
+            return item.get_colour()
         if isinstance(item, Staff):
             return item.get_staff_email()
