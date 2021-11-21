@@ -8,7 +8,6 @@ from .addOns import ConcreteValet, WaxCost, WashCost, PolishCost, LeatherCost, S
 import math
 from datetime import datetime, timedelta
 import pytz
-
 utc=pytz.UTC
 
 from django.views.generic import ListView
@@ -79,15 +78,14 @@ def check_booking_availability(store_name, storeid, start_time):
 
 
 def init_booking_form(request):
-    if request.method != 'POST':
+    if request.method == 'POST':
+        form = AvailabilityForm(request.POST)
+        if form.is_valid():
+            data = form.cleaned_data
+            return create_booking(request, data)
+    else:
         form = AvailabilityForm()
-        return render(request, 'bookingservice_form.html', {'form': form})
-
-    form = AvailabilityForm(request.POST)
-
-    if form.is_valid():
-        data = form.cleaned_data
-        return create_booking(request, data)
+    return render(request, 'bookingservice_form.html', {'form': form})
 
 
 def create_booking(request, data):
@@ -199,7 +197,6 @@ def cancel_booking(request, bookingid):
         booking.cancel()
         booking.save()
 
-    print(booking.get_booking_status())
     return render(request, 'home.html')
 
 

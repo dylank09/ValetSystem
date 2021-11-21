@@ -18,6 +18,5 @@ class Userfactory():
             colours = MembershipType.objects.filter(pk=membership_type_id)[0]
 
             newuser.set_colour(colours)
-            print(newuser)
         newuser.save()
         return newuser

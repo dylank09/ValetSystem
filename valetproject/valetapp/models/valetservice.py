@@ -26,7 +26,6 @@ class CompositeBaseValet(BaseValet):
         for g in self.childValet:
             for h in g.childValet:
                 self.duration += h.addDuration()
-        print(self.duration)
         return self.duration
 
     def get_duration(self):
@@ -45,7 +44,6 @@ class CompositeExterior(CompositeBaseValet):
     def addDuration(self):
         for g in self.childValet:
             self.duration += g.addDuration()
-        print(self.duration)
 
     def getDuration(self):
         return self.duration
@@ -78,7 +76,6 @@ class CompositeInterior(CompositeBaseValet):
     def addDuration(self):
         for g in self.childValet:
             self.duration += g.addDuration()
-        print(self.duration)
 
 
 class Vacuum(CompositeInterior):
