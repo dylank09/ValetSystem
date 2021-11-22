@@ -1,6 +1,6 @@
-from .models.users.membershiptype import MembershipType
-from .models.users.staff import Staff
-from .models.users.customer import Customer
+from ..models.users.membershiptype import MembershipType
+from ..models.users.staff import Staff
+from ..models.users.customer import Customer
 
 
 class Userfactory():
