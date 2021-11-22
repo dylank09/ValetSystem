@@ -1,4 +1,3 @@
-from django.db import models
 from abc import ABCMeta, abstractmethod
 
 

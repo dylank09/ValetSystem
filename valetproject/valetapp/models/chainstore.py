@@ -23,6 +23,6 @@ class ChainStore(models.Model, Item):
 
     def get_latitude(self):
         return self.latitude
-    
+
     def accept(self, visitor):
         return visitor.visit(self)

@@ -16,7 +16,6 @@ class ConcreteValet(abstract_valet_status):
         return 10
 
 
-
 @six.add_metaclass(ABCMeta)
 class AbstractValetDecorator(abstract_valet_status):
 
@@ -44,6 +43,7 @@ class PolishCost(AbstractValetDecorator):
     def get_valet_cost(self):
         return self.decorated_valet.get_valet_cost() + 12
 
+
 class WashCost(AbstractValetDecorator):
 
     def __init__(self, decorated_valet):
@@ -51,6 +51,7 @@ class WashCost(AbstractValetDecorator):
 
     def get_valet_cost(self):
         return self.decorated_valet.get_valet_cost() + 3
+
 
 class VacuumCost(AbstractValetDecorator):
 
@@ -60,6 +61,7 @@ class VacuumCost(AbstractValetDecorator):
     def get_valet_cost(self):
         return self.decorated_valet.get_valet_cost() + 4
 
+
 class LeatherCost(AbstractValetDecorator):
 
     def __init__(self, decorated_valet):
@@ -68,6 +70,7 @@ class LeatherCost(AbstractValetDecorator):
     def get_valet_cost(self):
         return self.decorated_valet.get_valet_cost() + 6
 
+
 class SteamCleanCost(AbstractValetDecorator):
 
     def __init__(self, decorated_valet):
@@ -75,5 +78,3 @@ class SteamCleanCost(AbstractValetDecorator):
 
     def get_valet_cost(self):
         return self.decorated_valet.get_valet_cost() + 4
-
-
