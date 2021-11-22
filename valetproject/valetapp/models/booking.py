@@ -25,6 +25,8 @@ class Booking(models.Model, Subject, Item):
     valetservice = models.CharField(max_length=200, default="")
     price = models.FloatField(default=0.00)
 
+    observers = []
+
     def pending(self):
         self.booking_state = 'PENDING'
 
@@ -45,6 +47,16 @@ class Booking(models.Model, Subject, Item):
     def get_start_time(self): return self.start_time
 
     def set_price(self, new_price): self.price = new_price
+
+    def attach(self, observer):
+        self.observers.append(observer)
+
+    def detach(self, observer):
+        self.observers.remove(observer)
+
+    def notify(self):
+        for observer in self.observers:
+            observer.update(self)
 
     def __str__(self):
         return f'{self.user} has booked {self.start_time} until {self.end_time}'
