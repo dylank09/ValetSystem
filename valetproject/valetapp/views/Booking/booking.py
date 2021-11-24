@@ -89,9 +89,9 @@ def init_booking_form(request):
 
 def create_booking(request, data):
 
-    available_booking = data['valet_services']
+    valet_services = data['valet_services']
 
-    base, total_booking_cost, valets = get_valet_services(available_booking)
+    base, total_booking_cost, valets = get_valet_services(valet_services)
 
     booking_duration = base.add_duration()
     booking_duration = timedelta(minutes=booking_duration)
@@ -102,8 +102,15 @@ def create_booking(request, data):
         store_name, storeid, data['start_time'])
     storeid = ChainStore.objects.filter(name=store.get_name())[0]
 
-    if len(available_booking) > 0:  # precondition
-        return make_booking(request, data, total_booking_cost, valets, booking_duration, storeid)
+    num_bookings = Booking.objects.count()
+
+    if len(valet_services) > 0:  # precondition
+        req = make_booking(request, data, total_booking_cost, valets, booking_duration, storeid)
+
+    num_bookings_after = Booking.objects.count()
+
+    if num_bookings_after > num_bookings: # postcondition
+        return req
 
     return ""
 
@@ -156,6 +163,7 @@ def make_booking(request, data, total_booking_cost, valets, booking_duration, st
         price=total_booking_cost,
         store=storeid
     )
+    
 
     booking.save()
     check_for_free_8th_booking(customer, booking)
