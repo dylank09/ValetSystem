@@ -1,4 +1,3 @@
-from ..subject import Subject
 from abc import abstractmethod
 
 

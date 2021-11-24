@@ -168,7 +168,7 @@ def pay_for_booking(request, booking):
     customer = Customer.objects.filter(user=request.user)[0]
 
     old_price = (booking.get_price())
-    # customer.update(booking)
+    
     booking.attach(customer)
     booking.notify()
 
