@@ -1,6 +1,6 @@
-from ..models.users.membershiptype import MembershipType
-from ..models.users.staff import Staff
-from ..models.users.customer import Customer
+from valetapp.models.Users.membershiptype import MembershipType
+from valetapp.models.Users.staff import Staff
+from valetapp.models.Users.customer import Customer
 
 
 class Userfactory():

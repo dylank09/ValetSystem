@@ -1,5 +1,5 @@
 from django.db import models
-from .item import Item
+from valetapp.models.item import Item
 
 
 class ChainStore(models.Model, Item):

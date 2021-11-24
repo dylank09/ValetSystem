@@ -1,8 +1,8 @@
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth import login, authenticate
 from django.shortcuts import render, redirect
-from ..forms.Userfactory import Userfactory
-from ..forms.signup import SignUpForm
+from valetapp.forms.Registration.Userfactory import Userfactory
+from valetapp.forms.Registration.signup import SignUpForm
 from django.contrib.auth import authenticate, login as auth_login
 
 from django.contrib.auth import (
@@ -24,7 +24,7 @@ def login_page(request):
             return redirect('../home/')
     else:
         form = AuthenticationForm()
-    return render(request, 'login.html', {'form': form})
+    return render(request, 'Login/login.html', {'form': form})
 
 
 def user_logout(request):
@@ -46,4 +46,4 @@ def register(request):
             return redirect('home')
     else:
         form = SignUpForm()
-    return render(request, 'register.html', {'form': form})
+    return render(request, 'Registration/register.html', {'form': form})

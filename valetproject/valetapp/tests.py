@@ -1,11 +1,11 @@
 from django.test import TestCase
-from valetapp.forms.signup import SignUpForm
+from valetapp.forms.Registration.signup import SignUpForm
 from django.urls import reverse
 from django.contrib.auth.models import User
-from valetapp.models.users.customer import Customer
-from valetapp.models.users.membershiptype import MembershipType
-from valetapp.models.chainstore import ChainStore
-from valetapp.models.valet import Valet
+from valetapp.models.Users.customer import Customer
+from valetapp.models.Users.membershiptype import MembershipType
+from valetapp.models.Store.chainstore import ChainStore
+from valetapp.models.Valet.valet import Valet
 
 
 class signup_form_test(TestCase):

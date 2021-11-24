@@ -1,6 +1,6 @@
 from django import forms
-from ..models.valet import Valet
-from ..models.chainstore import ChainStore
+from valetapp.models.Valet.valet import Valet
+from valetapp.models.Store.chainstore import ChainStore
 
 
 class AvailabilityForm(forms.Form):

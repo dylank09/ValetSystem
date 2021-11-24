@@ -1,10 +1,10 @@
-from ..models.booking import Booking
-from ..models.users.customer import Customer
-from ..models.chainstore import ChainStore
-from ..models.valet import Valet
-from ..models.users.membershiptype import MembershipType
-from ..models.users.staff import Staff
-from .concreteVisitor import ConcreteVisitor
+from valetapp.models.Booking.booking import Booking
+from valetapp.models.Users.customer import Customer
+from valetapp.models.Store.chainstore import ChainStore
+from valetapp.models.Valet.valet import Valet
+from valetapp.models.Users.membershiptype import MembershipType
+from valetapp.models.Users.staff import Staff
+from valetapp.views.Visitor.concreteVisitor import ConcreteVisitor
 from django.shortcuts import render
 
 
@@ -49,7 +49,7 @@ def getVisitor(request):
         'money_made_by_each_store': money_made_by_each_store
     }
 
-    return render(request, "booking_list.html", {'export_data': export_to_CSV_object})
+    return render(request, "Booking/booking_list.html", {'export_data': export_to_CSV_object})
 
 
 def get_money_made_by_each_store(bookings, stores):

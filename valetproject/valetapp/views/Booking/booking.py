@@ -1,22 +1,21 @@
+from django.views.generic import ListView
 from django.shortcuts import render
-from ..models import ChainStore
-from ..models.booking import Booking
-from ..models.valetservice import CompositeBaseValet, CompositeExterior, Wash, Wax, Polish, CompositeInterior, SteamClean, Vacuum, Leather
-from ..models.users.customer import Customer
-from ..forms.bookService import AvailabilityForm
-from .addOns import ConcreteValet, WaxCost, WashCost, PolishCost, LeatherCost, SteamCleanCost, VacuumCost
+from valetapp.models.Store.chainstore import ChainStore
+from valetapp.models.Booking.booking import Booking
+from valetapp.models.Valet.valetservice import CompositeBaseValet, CompositeExterior, Wash, Wax, Polish, CompositeInterior, SteamClean, Vacuum, Leather
+from valetapp.models.Users.customer import Customer
+from valetapp.forms.Booking.bookService import AvailabilityForm
+from valetapp.views.addOns import ConcreteValet, WaxCost, WashCost, PolishCost, LeatherCost, SteamCleanCost, VacuumCost
 import math
 from datetime import datetime, timedelta
 import pytz
-utc=pytz.UTC
-
-from django.views.generic import ListView
+utc = pytz.UTC
 
 
 class BookingList(ListView):
     model = Booking
     context_object_name = 'obj'
-    template_name = 'booking_list.html'
+    template_name = 'Booking/booking_list.html'
 
 
 def closest_avail_store(store, long, lat, start_time, stores_to_exclude):
@@ -85,7 +84,7 @@ def init_booking_form(request):
             return create_booking(request, data)
     else:
         form = AvailabilityForm()
-    return render(request, 'bookingservice_form.html', {'form': form})
+    return render(request, 'Booking/bookingservice_form.html', {'form': form})
 
 
 def create_booking(request, data):
@@ -168,12 +167,12 @@ def pay_for_booking(request, booking):
     customer = Customer.objects.filter(user=request.user)[0]
 
     old_price = (booking.get_price())
-    
+
     booking.attach(customer)
     booking.notify()
 
     discount = old_price - booking.get_price()
-    return render(request, "payForBooking.html", {'booking': booking, 'oldPrice': old_price, 'discount': discount})
+    return render(request, "Booking/payForBooking.html", {'booking': booking, 'oldPrice': old_price, 'discount': discount})
 
 
 def check_for_free_8th_booking(customer, booking):
@@ -181,26 +180,26 @@ def check_for_free_8th_booking(customer, booking):
     number_of_bookings = len(bookings) % 8
     if number_of_bookings == 0:
         booking.set_price(0)
-        
+
 
 def confirm_pay(request, bookingid):
     booking = Booking.objects.filter(id=bookingid)[0]
     booking.book()
     booking.save()
-    
-    return render(request, 'home.html')
+
+    return render(request, 'Home/home.html')
 
 
 def cancel_booking(request, bookingid):
     booking = Booking.objects.filter(id=bookingid)[0]
     now = datetime.now()
-    if utc.localize(now-timedelta(hours=24)) <= booking.get_start_time() <=  utc.localize(now+timedelta(hours=24)):
+    if utc.localize(now-timedelta(hours=24)) <= booking.get_start_time() <= utc.localize(now+timedelta(hours=24)):
         print('error cannot cancel 24 hours before')
     else:
         booking.cancel()
         booking.save()
 
-    return render(request, 'home.html')
+    return render(request, 'Home/home.html')
 
 
 def view_user_bookings(request):
@@ -210,4 +209,4 @@ def view_user_bookings(request):
     bookingID = []
     for booking in bookings:
         bookingID.append(booking.id)
-    return render(request, 'cancel_list.html', {'bookings': bookings, 'bookingID': bookingID})
+    return render(request, 'Booking/cancel_list.html', {'bookings': bookings, 'bookingID': bookingID})

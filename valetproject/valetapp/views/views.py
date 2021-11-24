@@ -5,9 +5,10 @@ import pytz
 
 utc = pytz.UTC
 
+
 def index():
-    return render(request, 'register.html')
+    return render(request, 'Registration/register.html')
+
 
 def home(request):
-    return render(request, 'home.html')
-    
+    return render(request, 'Home/home.html')

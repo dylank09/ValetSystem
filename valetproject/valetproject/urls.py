@@ -17,7 +17,7 @@ from django.contrib import admin
 from django.contrib.auth import login
 from django.urls import path, include
 
-from valetapp.views.auth import login
+from valetapp.views.Authentication.auth import login
 
 
 urlpatterns = [

@@ -1,12 +1,12 @@
-from valetapp.models.users.membershiptype import MembershipType
-from valetapp.models.users.staff import Staff
-from .visitor import Visitor
-from ..models.booking import Booking
-from ..models.chainstore import ChainStore
-from ..models.users.customer import Customer
-from ..models.valet import Valet
-from ..models.users.staff import Staff
-from ..models.users.membershiptype import MembershipType
+from valetapp.models.Users.membershiptype import MembershipType
+from valetapp.models.Users.staff import Staff
+from valetapp.views.Visitor.visitor import Visitor
+from valetapp.models.Booking.booking import Booking
+from valetapp.models.Store.chainstore import ChainStore
+from valetapp.models.Users.customer import Customer
+from valetapp.models.Valet.valet import Valet
+from valetapp.models.Users.staff import Staff
+from valetapp.models.Users.membershiptype import MembershipType
 
 
 class ConcreteVisitor(Visitor):

@@ -1,15 +1,15 @@
 from django.db import models
 from enum import Enum
-from .users.customer import Customer
-from .subject import Subject
-from .chainstore import ChainStore
-from .item import Item
+from valetapp.models.Users.customer import Customer
+from valetapp.models.subject import Subject
+from valetapp.models.Store.chainstore import ChainStore
+from valetapp.models.item import Item
 
 
 class BookingStates(Enum):
-    PENDING = 'pending' # when a booking is made but not paid for
-    BOOKED = 'booked' # when booking is paid for
-    CANCELLED = 'cancelled' # when booking is cancelled
+    PENDING = 'pending'  # when a booking is made but not paid for
+    BOOKED = 'booked'  # when booking is paid for
+    CANCELLED = 'cancelled'  # when booking is cancelled
 
     @classmethod
     def tuples(cls): return tuple((state.name, state.value) for state in cls)

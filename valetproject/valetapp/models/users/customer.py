@@ -1,8 +1,8 @@
 from django.db import models
 from django.contrib.auth.models import User
-from ..item import Item
-from .observer import Observer
-from .membershiptype import MembershipType
+from valetapp.models.item import Item
+from valetapp.models.Users.observer import Observer
+from valetapp.models.Users.membershiptype import MembershipType
 
 
 class Customer(models.Model, Observer, Item):

@@ -1,5 +1,5 @@
 from django import forms
-from valetapp.models.users.membershiptype import MembershipType
+from valetapp.models.Users.membershiptype import MembershipType
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
 

@@ -9,3 +9,6 @@ class MembershipType(models.Model):
 
     def accept(self, visitor):
         return visitor.visit(self)
+
+    class Meta:
+        app_label = 'valetapp'

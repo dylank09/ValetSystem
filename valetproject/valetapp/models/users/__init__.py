@@ -1,2 +1,2 @@
 from .customer import Customer
-from .membershiptype import MembershipType
+from valetapp.models.Users.membershiptype import MembershipType
