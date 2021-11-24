@@ -7,6 +7,7 @@ from valetapp.models.users.membershiptype import MembershipType
 from valetapp.models.chainstore import ChainStore
 from valetapp.models.valet import Valet
 
+
 class signup_form_test(TestCase):
 
     def test_signup_labels(self):
@@ -63,7 +64,7 @@ class login_test(TestCase):
         response = self.client.get('/login/')
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, template_name='login.html')
-            
+
     def test_login_success(self):
         login_data = {
             'username': 'dylank09',
@@ -96,13 +97,15 @@ class login_test(TestCase):
         self.assertEqual(str(response.context['user']), 'AnonymousUser')
         self.assertFalse(response.context['user'].is_authenticated)
 
+
 class booking_test(TestCase):
 
     def test_booking_page(self):
         response = self.client.get('/bookingservice_form/')
         self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response, template_name='bookingservice_form.html')
-            
+        self.assertTemplateUsed(
+            response, template_name='bookingservice_form.html')
+
     def test_booking_success(self):
         membershipType = {
             'colour': 'gold'

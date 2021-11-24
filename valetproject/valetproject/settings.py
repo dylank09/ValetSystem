@@ -33,7 +33,6 @@ ALLOWED_HOSTS = []
 
 INSTALLED_APPS = [
     'valetapp.apps.ValetappConfig',
-    'valetapp.booking_functions',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',

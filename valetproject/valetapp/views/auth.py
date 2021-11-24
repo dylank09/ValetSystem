@@ -1,7 +1,7 @@
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth import login, authenticate
 from django.shortcuts import render, redirect
-from ..Userfactory import Userfactory
+from ..forms.Userfactory import Userfactory
 from ..forms.signup import SignUpForm
 from django.contrib.auth import authenticate, login as auth_login
 
@@ -10,6 +10,7 @@ from django.contrib.auth import (
     login,
     logout
 )
+
 
 def login_page(request):
     if request.method == 'POST':
@@ -25,10 +26,11 @@ def login_page(request):
         form = AuthenticationForm()
     return render(request, 'login.html', {'form': form})
 
+
 def user_logout(request):
     logout(request)
     return redirect('../home/')
-        
+
 
 def register(request):
     if request.method == 'POST':
@@ -45,4 +47,3 @@ def register(request):
     else:
         form = SignUpForm()
     return render(request, 'register.html', {'form': form})
-    
